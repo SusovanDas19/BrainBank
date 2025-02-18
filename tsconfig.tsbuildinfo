@@ -1,0 +1,1 @@
+{"root":["./src/server.ts","./src/database/db.ts","./src/routes/data.ts","./src/routes/find.ts","./src/routes/share.ts","./src/routes/user.ts","./src/middlewares/userauth.ts","./src/utils/randomhash.ts"],"version":"5.7.3"}
