@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import axios from "axios";
 
+
 export const Youtube = () => {
     const [currTab, setCurrTab] = useRecoilState(currSidebar);
     const [content, setContent] = useState([]);
@@ -28,12 +29,6 @@ export const Youtube = () => {
     return (
         <div className="h-screen bg-white dark:bg-primaryBlack">
             <Header />
-            {content.length === 0 ? (
-                <p>No content added</p>
-            ) : (
-                // Render content here
-                <div>{content}</div>
-            )}
         </div>
     );
 }

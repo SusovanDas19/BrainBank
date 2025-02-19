@@ -48,8 +48,8 @@ const Signin = () => {
         <h1 className="font-primary text-5xl dark:text-white text-black">Signin</h1>
         <div className="flex flex-col gap-5 justify-center items-center">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <InputBox placeholder="Username" type="text" name="username" />
-            <InputBox placeholder="Password" type="password" name="password" />
+            <InputBox variant="auth" placeholder="Username" type="text" name="username" />
+            <InputBox variant="auth" placeholder="Password" type="password" name="password" />
             <Button text="Submit" variant="primary" size="sm" type="submit" />
           </form>
         </div>
@@ -99,9 +99,9 @@ const Signup = () => {
         <h1 className="font-primary text-5xl dark:text-white text-black">Signup</h1>
         <div className="flex flex-col gap-5 justify-center items-center">
           <form onSubmit={handleSubmit} className="gap-5 flex flex-col">
-            <InputBox placeholder="Username" type="text" name="username" />
-            <InputBox placeholder="Password" type="password" name="password" />
-            <InputBox placeholder="Confirm Password" type="password" name="confirmPassword" />
+            <InputBox variant="auth" placeholder="Username" type="text" name="username" />
+            <InputBox variant="auth" placeholder="Password" type="password" name="password" />
+            <InputBox variant="auth" placeholder="Confirm Password" type="password" name="confirmPassword" />
             <Button text="Submit" variant="primary" size="md" type="submit" />
           </form>
         </div>
@@ -117,10 +117,10 @@ export const LogoutMenu = ({ handleLogout }: { handleLogout: () => void }) => {
       initial={{ scale: 0.5 }}
       animate={{ scale: 1 }}
       transition={{ type: "spring", ease: ["easeIn", "easeOut"] }}
-      className="absolute z-100 top-16 right-22 w-50 h-60 flex justify-center items-center gap-5 flex-col bg-gray-400  dark:bg-primaryBlack  rounded border-2 border-whiteOrange dark:border-blackOrange hover:border-3"
+      className="absolute z-100 top-18 right-22 w-50 h-60 flex justify-center items-center gap-5 flex-col bg-white  dark:bg-primaryBlack  rounded-sm rounded-tl-4xl rounded-br-4xl border-2 border-whiteOrange dark:border-blackOrange hover:border-3"
     >
       <div className="w-3/4 font-primary text-xl text-white relative flex justify-center items-center">
-        <span className="relative z-10">Username</span>
+        <span className="relative z-10 text-black dark:text-white">Username</span>
         <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-gray-500 to-transparent"></div>
       </div>
       <Tabs text={username} size="lg" variant="navTabs"></Tabs>
