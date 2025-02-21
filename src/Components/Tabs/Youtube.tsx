@@ -9,22 +9,22 @@ export const Youtube = () => {
     const [currTab, setCurrTab] = useRecoilState(currSidebar);
     const [content, setContent] = useState([]);
 
-    useEffect(() => {
-       setCurrTab("Youtube")
-        try{
-            fetchContent();
-            async function fetchContent() {
+    // useEffect(() => {
+    //    setCurrTab("Youtube")
+    //     try{
+    //         fetchContent();
+    //         async function fetchContent() {
 
-                const response = await axios.get("http://localhost:3000/v1/content/fetch",{
-                    params: {type: `${currTab}`}
-                });
-                setContent(response.data);
-                console.log(response.data);
-            }
-        }catch(error){
-            console.error('Error fetching content:', error);
-        }
-    }, []);
+    //             const response = await axios.get("http://localhost:3000/v1/content/fetch",{
+    //                 params: {type: `${currTab}`}
+    //             });
+    //             setContent(response.data);
+    //             console.log(response.data);
+    //         }
+    //     }catch(error){
+    //         console.error('Error fetching content:', error);
+    //     }
+    // }, []);
 
     return (
         <div className="h-screen bg-white dark:bg-primaryBlack">

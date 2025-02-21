@@ -6,6 +6,7 @@ import { Youtube } from "./Components/Tabs/Youtube";
 import { Auth } from "./Components/Auth";
 import { Intro } from "./Components/Intro";
 import { Recent } from "./Components/Tabs/Recent";
+import "./App.css"
 
 function App() {
   const token = localStorage.getItem("token");
