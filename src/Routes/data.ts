@@ -4,23 +4,37 @@ import { userAuth } from "../middlewares/userAuth";
 import { newContentModel, UserModel } from "../Database/db";
 const dataRouter = Router();
 
-dataRouter.post("/add",userAuth,async (req: Request, res: Response): Promise<void> => {
+dataRouter.post("/add", userAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
     const userId: string = req.userId || "";
-    const { title, description, type, link } = req.body;
+    const { title, description, type, link, tags } = req.body;
 
+  
+    if (!title || !description || !type) {
+      res.status(400).json({ error: "Title, description, and type are required." });
+      return;
+    }
+
+    // Create new content
     await newContentModel.create({
       title,
       description,
       type,
       link,
+      tags,
       userId,
     });
+
     res.status(201).json({
-      message: "New Content created successfully",
+      message: "New content created successfully",
+      
     });
-    return;
+
+  } catch (error) {
+    console.error("Error creating content:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-);
+});
 
 
 dataRouter.get("/fetch", userAuth, async (req:Request, res:Response): Promise<void> =>{

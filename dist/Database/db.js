@@ -13,7 +13,7 @@ const newContentSchema = new mongoose_1.Schema({
     type: { type: String, required: true },
     link: { type: String },
     createdAt: { type: Date },
-    tags: { type: [{ type: ObjectId, ref: 'Tags' }] },
+    tags: { type: [String] },
     userId: { type: String, ref: 'users' },
 });
 const orgSchema = new mongoose_1.Schema({

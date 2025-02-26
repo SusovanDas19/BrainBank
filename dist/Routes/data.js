@@ -17,19 +17,30 @@ const userAuth_1 = require("../middlewares/userAuth");
 const db_1 = require("../Database/db");
 const dataRouter = (0, express_1.default)();
 dataRouter.post("/add", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.userId || "";
-    const { title, description, type, link } = req.body;
-    yield db_1.newContentModel.create({
-        title,
-        description,
-        type,
-        link,
-        userId,
-    });
-    res.status(201).json({
-        message: "New Content created successfully",
-    });
-    return;
+    try {
+        const userId = req.userId || "";
+        const { title, description, type, link, tags } = req.body;
+        if (!title || !description || !type) {
+            res.status(400).json({ error: "Title, description, and type are required." });
+            return;
+        }
+        // Create new content
+        yield db_1.newContentModel.create({
+            title,
+            description,
+            type,
+            link,
+            tags,
+            userId,
+        });
+        res.status(201).json({
+            message: "New content created successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error creating content:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 }));
 dataRouter.get("/fetch", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.userId || "";
