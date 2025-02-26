@@ -2,35 +2,54 @@ import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { inpDefaultStyle, InputBox } from "./InputBox";
 import { IoIosArrowDown } from "react-icons/io";
 import { RxCrossCircled } from "react-icons/rx";
+import { MdOutlineCancelPresentation } from "react-icons/md";
 import { IoInformationCircle } from "react-icons/io5";
+import { motion } from "motion/react";
+import { Button } from "./Button";
+import axios from "axios";
+import { useToast } from "./ToastProvider";
 
-export const Form: React.FC = () => {
-  const [selectedOption, setSelectedOption] = useState("");
+
+interface formProps {
+  setShowForm: (option: boolean) => void;
+}
+
+interface formDataInterface {
+  title: string;
+  description: string;
+  type: string;
+  date: string;
+  link: string;
+  tags: string[];
+}
+
+export const Form = (props: formProps) => {
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const today = new Date().toLocaleDateString("en-CA");
-  console.log(today)
-  const [showInfo, setShowInfo] = useState(false);
+
+  const [showInfo, setShowInfo] = useState<boolean>(false);
   const [date, setDate] = useState(today);
   const [tags, setTags] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const setShowForm = props.setShowForm;
+  const token: string = localStorage.getItem("tokenBB") || "";
+  const { addToast } = useToast();
 
   // Keydown event handler (Memoized)
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      const tagValue = e.currentTarget.value.trim(); // Get value directly from event
-      if (e.key === "Enter" && tagValue !== "") {
-        e.preventDefault();
-        if (tags.length < 3) {
-          setTags((prevTags) => [...prevTags, tagValue]);
-          e.currentTarget.value = ""; // Clear input
-        }
-      }
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const tagValue = e.currentTarget.value.trim();
+      if (!tagValue || tags.length >= 3) return;
+      setTags((prevTags) => [...prevTags, tagValue]);
+      e.currentTarget.value = "";
     },
     [tags]
   );
 
   // Remove tag handler (Memoized)
-  const removeTag = useCallback((e: React.MouseEvent, tagToRemove: string) => {
-    e.preventDefault();
+  const removeTag = useCallback((tagToRemove: string) => {
     setTags((prevTags) => prevTags.filter((tag) => tag !== tagToRemove));
   }, []);
 
@@ -47,7 +66,7 @@ export const Form: React.FC = () => {
         </p>
 
         <button
-          onClick={(e) => removeTag(e, tag)}
+          onClick={() => removeTag(tag)}
           type="button"
           className="ml-2 text-red-500 font-bold opacity-0 group-hover:opacity-100"
         >
@@ -57,39 +76,73 @@ export const Form: React.FC = () => {
     ));
   }, [tags, removeTag]);
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const form = e.currentTarget;
+
+    const formData: formDataInterface = {
+      title: (form.elements.namedItem("title") as HTMLInputElement).value,
+      description: (form.elements.namedItem("description") as HTMLInputElement).value,
+      type: selectedOption,
+      date,
+      link: (form.elements.namedItem("link") as HTMLInputElement).value,
+      tags,
+    };
+   
+    try {
+      const response = await axios.post("http://localhost:3000/v1/content/add", formData, {
+        headers: { Authorization: `${token}` },
+      });
+
+      if (response.status === 201) {
+        addToast({
+          type: "success",
+          size: "md",
+          message: "Content added successfully",
+        });
+        form.reset();
+        setSelectedOption("");
+        setTags([]);
+      
+      }
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        if (e.response?.status === 400) {
+          addToast({
+            type: "error",
+            size: "md",
+            message: "Title, description, and type are required.",
+          });
+        } else {
+          addToast({
+            type: "failure",
+            size: "md",
+            message: "Internal server error",
+          });
+        }
+      }
+      
+    }
+  };
+
   return (
-    <div className="flex justify-center items-center font-primary">
-      <form
-        className="flex flex-col justify-center items-center gap-8"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <InputBox
-          variant="atForm"
-          placeholder="Title"
-          type="text"
-          name="title"
-        />
-        <InputBox
-          variant="atForm"
-          placeholder="Description"
-          type="text"
-          name="description"
-        />
+    <div className="flex justify-center items-center font-primary relative">
+      <form className="flex flex-col justify-center items-center gap-5" onSubmit={handleSubmit}>
+        <InputBox variant="atForm" placeholder="Title" type="text" name="title" />
+        <InputBox variant="atForm" placeholder="Description" type="text" name="description" />
         <div className="flex flex-row gap-10 w-full">
-          <CustomDropdown
-            selectedOption={selectedOption}
-            setSelectedOption={setSelectedOption}
-          />
+          <CustomDropdown selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
           <input
             type="date"
+            name="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full px-4 py-3 text-2xl cursor-pointer font-medium dark:text-white bg-transparent dark:bg-primaryBlack border-2 rounded-lg border-gray-800 text-left focus:border-whiteOrange dark:focus:border-blackOrange"
+            className="w-full px-4 py-3 text-2xl cursor-pointer font-medium dark:text-white bg-transparent dark:bg-primaryBlack border-2 rounded-lg border-gray-800"
           />
         </div>
         <InputBox variant="atForm" placeholder="Link" type="text" name="link" />
 
-        {/* Tags Input */}
         <div className="w-full flex  items-center relative gap-2 border-2 border-gray-800 rounded-lg p-2">
           {renderedTags}
           {tags.length < 3 && (
@@ -97,7 +150,7 @@ export const Form: React.FC = () => {
               <input
                 type="text"
                 placeholder="Tags"
-                className={`outline-none bg-transparent   ${inpDefaultStyle} text-2xl font-medium `}
+                className={`outline-none bg-transparent  text-center w-20 ${inpDefaultStyle} text-2xl font-medium `}
                 onKeyDown={handleKeyDown}
                 ref={inputRef}
               />
@@ -108,13 +161,23 @@ export const Form: React.FC = () => {
               />
               {showInfo && (
                 <div className="absolute -bottom-7 right-1 dark:text-white text-lg">
-                  Please press <strong>Enter</strong> after one tag
+                  Please press <strong className="text-blackOrange">Enter</strong> after one tag
                 </div>
               )}
             </>
           )}
         </div>
+        <Button type="submit" text="Submit" size="md" variant="primary" />
       </form>
+      <motion.div
+        initial={{ opacity: 0.3 }}
+        whileHover={{ scale: 1.2, opacity: 1 }}
+        className="absolute group -bottom-7 -right-7 cursor-pointer text-red-600 text-2xl font-primary"
+        onClick={() => setShowForm(false)}
+      >
+        <MdOutlineCancelPresentation />
+        <div className="opacity-0 group-hover:opacity-70 absolute -bottom-7 -right-4">Cancel</div>
+      </motion.div>
     </div>
   );
 };
@@ -140,10 +203,7 @@ interface CustomDropdownProps {
   setSelectedOption: (option: string) => void;
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({
-  selectedOption,
-  setSelectedOption,
-}) => {
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ selectedOption, setSelectedOption }) => {
   const [isOpen, setIsOpen] = useState(false);
   const listref = useRef<HTMLDivElement>(null);
 
@@ -158,7 +218,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [listref, setIsOpen]);
+  }, []);
 
   return (
     <div className="relative w-full" ref={listref}>
@@ -167,12 +227,10 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex flex-row justify-between px-4 py-3 text-2xl font-medium dark:text-white bg-white dark:bg-primaryBlack border-2 rounded-lg border-gray-800 text-left focus:border-whiteOrange dark:focus:border-blackOrange"
       >
-        {selectedOption || "Select"}{" "}
+        {selectedOption || "Select"}
         <IoIosArrowDown
           className={`${
-            isOpen
-              ? "text-whiteOrange dark:text-blackOrange text-3xl"
-              : "text-black dark:text-white"
+            isOpen ? "text-whiteOrange dark:text-blackOrange text-3xl" : "text-black dark:text-white"
           }`}
         />
       </button>

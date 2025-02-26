@@ -6,14 +6,15 @@ import { Youtube } from "./Components/Tabs/Youtube";
 import { Auth } from "./Components/Auth";
 import { Intro } from "./Components/Intro";
 import { Recent } from "./Components/Tabs/Recent";
-import "./App.css"
+import "./App.css";
+import { ToastProvider } from "./Components/UI/ToastProvider";
 
 function App() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("tokenBB");
 
   return (
-    <>
-      <RecoilRoot>
+    <RecoilRoot>
+      <ToastProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout />}>
@@ -21,17 +22,16 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/Recent" element={token ? <Recent /> : <Auth />} />
               <Route path="/Youtube" element={token ? <Youtube /> : <Auth />} />
-              
             </Route>
           </Routes>
         </BrowserRouter>
-      </RecoilRoot>
-    </>
+      </ToastProvider>
+    </RecoilRoot>
   );
 }
 
 function Layout() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("tokenBB");
   return (
     <div className="h-full w-full flex flex-col">
       {token ? (
@@ -39,7 +39,7 @@ function Layout() {
           <Navbar />
           <div className="flex flex-1">
             <SideBar />
-            <div className="flex-1">
+            <div className="flex-1 relative">
               <Outlet />
             </div>
           </div>

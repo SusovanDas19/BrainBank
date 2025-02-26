@@ -12,11 +12,11 @@ type InputBoxTypes = {
 }
 
 const inpVariantStyle = {
-    auth: "w-[280px]  ",
-    atForm: "w-[480px] text-2xl font-medium"
+    auth: "w-[280px]  px-4 py-3 ",
+    atForm: "w-[380px] text-2xl font-medium px-3 py-2 "
 }
 
-export const inpDefaultStyle = "bg-none px-4 py-3 outline-none text-black dark:text-white rounded-lg border-2 transition-colors duration-100 border-solid dark:focus:border-blackOrange focus:border-whiteOrange border-gray-800 placeholder-gray-800 dark:placeholder-gray-400";
+export const inpDefaultStyle = "bg-none outline-none text-black dark:text-white rounded-lg border-2 transition-colors duration-100 border-solid dark:focus:border-blackOrange focus:border-whiteOrange border-gray-800 placeholder-gray-800 dark:placeholder-gray-400";
 
 export const InputBox = (props: InputBoxTypes) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +39,7 @@ export const InputBox = (props: InputBoxTypes) => {
                     className="absolute right-3 top-3 text-white text-center"
                     onClick={togglePasswordVisibility}
                 >
-                    {showPassword ? <IoEyeOffOutline className='text-lg dark:text-white text-black'/> : <LuEyeClosed className='text-lg dark:text-white text-black'/>}
+                    {showPassword ? <IoEyeOffOutline className='text-lg dark:text-white text-black cursor-pointer'/> : <LuEyeClosed className='text-lg dark:text-white text-black cursor-pointer'/>}
                 </button>
             )}
         </div>

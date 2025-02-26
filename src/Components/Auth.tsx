@@ -30,8 +30,8 @@ const Signin = () => {
 
     try {
       const response = await axios.post("http://localhost:3000/v1/user/signin", data);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("username", response.data.username);
+      localStorage.setItem("tokenBB", response.data.token);
+      localStorage.setItem("usernameBB", response.data.username);
       window.location.href = "/";
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -111,7 +111,7 @@ const Signup = () => {
 };
 
 export const LogoutMenu = ({ handleLogout }: { handleLogout: () => void }) => {
-  const username: string = localStorage.getItem("username") || "";
+  const username: string = localStorage.getItem("usernameBB") || "";
   return (
     <motion.div
       initial={{ scale: 0.5 }}

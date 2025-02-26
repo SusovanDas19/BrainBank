@@ -20,7 +20,7 @@ export const Navbar = () => {
   const [showLogout, setShowLogout] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const logOutRef = useRef<HTMLDivElement>(null);
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("tokenBB");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,8 +44,8 @@ export const Navbar = () => {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
+      localStorage.removeItem("tokenBB");
+      localStorage.removeItem("usernameBB");
       navigate("/");
       window.location.reload();
     }
