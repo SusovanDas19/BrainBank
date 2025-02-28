@@ -8,12 +8,13 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import { IoPersonCircleSharp } from "react-icons/io5";
 import { RxCrossCircled } from "react-icons/rx";
 
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { useRecoilState, useRecoilValue } from "recoil";
 import { dropMenuAtom } from "../store/atoms/dropMenuAtom";
 import { DropDownMenu } from "./DropeDownMenu";
 import { Button } from "./UI/Button";
+import { motion, AnimatePresence } from "motion/react";
 
 export const Navbar = () => {
   const [open, setOpen] = useRecoilState(dropMenuAtom);
@@ -52,7 +53,7 @@ export const Navbar = () => {
   };
 
   return (
-    <div className="w-full h-20 flex fixed top-0  flex-row justify-between items-center bg-gray-200 dark:bg-[#0f141c] border-b-1 border-b-gray-400 dark:border-b-gray-800 px-4">
+    <div className="w-full z-50 h-20 flex fixed top-0  flex-row justify-between items-center bg-gray-200 dark:bg-[#0f141c] border-b-1 border-b-gray-400 dark:border-b-gray-800 px-4">
       <div
         className="flex items-center gap-4"
         onClick={() => {
@@ -93,7 +94,23 @@ export const Navbar = () => {
                   />
                 )}
               </button>
-              <div ref={logOutRef}>{showLogout ? <LogoutMenu handleLogout={handleLogout} /> : null}</div>
+              <div ref={logOutRef}>
+                <AnimatePresence>
+                  {showLogout ? (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
+                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                      transition={{
+                        type: "spring",
+                        ease: ["easeIn", "easeOut"],
+                      }}
+                      exit={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
+                    >
+                      <LogoutMenu handleLogout={handleLogout} />
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </div>
             </>
           ) : (
             <Button
@@ -124,4 +141,3 @@ const DropMenu = () => {
     </div>
   );
 };
-

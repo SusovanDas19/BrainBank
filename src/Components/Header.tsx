@@ -11,7 +11,7 @@ export const Header = () => {
 
   return (
     <div className="absolute ">
-      <div className="flex justify-end fixed top-30 right-0 mr-20">
+      <div className="flex justify-end fixed top-30 right-0 mr-20 z-10">
         <Button
           variant="primary"
           size="md"

@@ -113,11 +113,9 @@ const Signup = () => {
 export const LogoutMenu = ({ handleLogout }: { handleLogout: () => void }) => {
   const username: string = localStorage.getItem("usernameBB") || "";
   return (
+    
     <motion.div
-      initial={{ scale: 0.5 }}
-      animate={{ scale: 1 }}
-      transition={{ type: "spring", ease: ["easeIn", "easeOut"] }}
-      className="absolute z-100 top-18 right-22 w-50 h-60 flex justify-center items-center gap-5 flex-col bg-white  dark:bg-primaryBlack  rounded-sm rounded-tl-4xl rounded-br-4xl border-2 border-whiteOrange dark:border-blackOrange hover:border-3"
+      className="absolute z-50 top-2 right-5 w-50 h-60 flex justify-center items-center gap-5 flex-col bg-white  dark:bg-primaryBlack  rounded-sm rounded-tl-4xl rounded-br-4xl border-2 border-whiteOrange dark:border-blackOrange hover:border-3"
     >
       <div className="w-3/4 font-primary text-xl text-white relative flex justify-center items-center">
         <span className="relative z-10 text-black dark:text-white">Username</span>
