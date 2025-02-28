@@ -170,13 +170,13 @@ export const Form = (props: formProps) => {
         <Button type="submit" text="Submit" size="md" variant="primary" />
       </form>
       <motion.div
-        initial={{ opacity: 0.3 }}
+        initial={{ opacity: 0.6 }}
         whileHover={{ scale: 1.2, opacity: 1 }}
         className="absolute group -bottom-7 -right-7 cursor-pointer text-red-600 text-2xl font-primary"
         onClick={() => setShowForm(false)}
       >
         <MdOutlineCancelPresentation />
-        <div className="opacity-0 group-hover:opacity-70 absolute -bottom-7 -right-4">Cancel</div>
+        <div className="opacity-0 group-hover:opacity-70 absolute -bottom-10 -right-5 border-2 px-1 rounded-md border-red-700 text-red-600 font-semibold bg-gray-200 dark:bg-gray-800">Cancel</div>
       </motion.div>
     </div>
   );

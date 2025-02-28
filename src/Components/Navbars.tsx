@@ -52,7 +52,7 @@ export const Navbar = () => {
   };
 
   return (
-    <div className="w-full h-20 flex flex-row justify-between items-center bg-gray-200 dark:bg-[#0f141c] border-b-1 border-b-gray-400 dark:border-b-gray-800 px-4">
+    <div className="w-full h-20 flex fixed top-0  flex-row justify-between items-center bg-gray-200 dark:bg-[#0f141c] border-b-1 border-b-gray-400 dark:border-b-gray-800 px-4">
       <div
         className="flex items-center gap-4"
         onClick={() => {

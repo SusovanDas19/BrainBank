@@ -82,8 +82,9 @@ const TabItem: React.FC<TabItemProps> = ({ id, text, icon: Icon, activeColor, cu
 
 export const SideBar: React.FC = () => {
   const [currTab, setCurrTab] = useRecoilState(currSidebar);
+   
   return (
-    <div className="w-50 h-screen flex flex-col gap-5 dark:bg-secondaryBlack bg-gray-300 border-r-1 dark:border-gray-700 border-gray-500 pt-10 pl-7">
+    <div className="w-50 h-full fixed top-20 left-0 flex flex-col gap-5 dark:bg-secondaryBlack bg-gray-300 border-r-1 dark:border-gray-700 border-gray-500 pt-5 pl-7">
       {tabData.map((tab) => (
         <TabItem key={tab.id} {...tab} currTab={currTab} setCurrTab={setCurrTab} />
       ))}

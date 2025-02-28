@@ -40,7 +40,7 @@ export const Toast = ({ type, size, message, removeToast }: ToastProps) => {
     <div
       className={`${toastDefaultStyle} ${typeStyle[type]}  ${sizeStyle[size]} `}
     >
-      <div className="mr-2 text-xl">{Icons[type]}</div>
+      <div className="mr-2 text-2xl">{Icons[type]}</div>
       <div className="flex-1 ">{message}</div>
       <div
         className="absolute top-1 right-1 cursor-pointer"

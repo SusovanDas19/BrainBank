@@ -1,5 +1,5 @@
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import { RecoilRoot } from "recoil";
+import { RecoilRoot, useRecoilValue } from "recoil";
 import { Navbar } from "./Components/Navbars";
 import { SideBar } from "./Components/SideBar";
 import { Youtube } from "./Components/Tabs/Youtube";
@@ -8,6 +8,8 @@ import { Intro } from "./Components/Intro";
 import { Recent } from "./Components/Tabs/Recent";
 import "./App.css";
 import { ToastProvider } from "./Components/UI/ToastProvider";
+import { Header } from "./Components/Header";
+import { showFormState } from "./store/atoms/formAtom";
 
 function App() {
   const token = localStorage.getItem("tokenBB");
@@ -32,21 +34,33 @@ function App() {
 
 function Layout() {
   const token = localStorage.getItem("tokenBB");
+  const showForm = useRecoilValue(showFormState);
+
   return (
     <div className="h-full w-full flex flex-col">
       {token ? (
         <>
-          <Navbar />
-          <div className="flex flex-1">
-            <SideBar />
-            <div className="flex-1 relative">
-              <Outlet />
+          <div>
+            <Navbar />
+            <Header />
+          </div>
+          <div className="flex flex-1 overflow-hidden">
+            <div className="w-50 min-h-screen overflow-hidden">
+              <SideBar />
+            </div>
+            <div className="flex-1 min-h-full overflow-y-auto transition-all duration-300">
+              {/* This inner wrapper will be blurred */}
+              <div className={`${showForm ? "filter blur-sm" : ""}`}>
+                <Outlet />
+              </div>
             </div>
           </div>
         </>
       ) : (
         <>
-          <Navbar />
+          <div className="h-16">
+            <Navbar />
+          </div>
           <div className="flex-1">
             <Outlet />
           </div>

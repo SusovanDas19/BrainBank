@@ -8,7 +8,7 @@ export const Recent = ()=>{
     const setCurrtab = useSetRecoilState(currSidebar)
 
     useEffect(()=>{
-        setCurrtab("Recent")
+        setCurrtab("Recent");
     })
     return(
         <div className="h-screen flex justify-center items-center text-black dark:text-white bg-white dark:bg-primaryBlack"> 

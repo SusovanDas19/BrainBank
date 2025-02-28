@@ -1,40 +1,52 @@
 import { IoIosAddCircle } from "react-icons/io";
 import { Button } from "./UI/Button";
 import { Form } from "../Components/UI/Form";
-import { useState } from "react";
-import {AnimatePresence, motion} from "motion/react";
+import { useRecoilState } from "recoil";
+
+import { AnimatePresence, motion } from "motion/react";
+import { showFormState } from "../store/atoms/formAtom";
 
 export const Header = () => {
-  const [showForm, setShowForm]  = useState<boolean>(false);
+  const [showForm, setShowForm] = useRecoilState(showFormState);
+
   return (
-    <div className="flex flex-col pt-10 ">
-      <div className="flex justify-end mr-20">
+    <div className="absolute ">
+      <div className="flex justify-end fixed top-30 right-0 mr-20">
         <Button
           variant="primary"
           size="md"
           text="Add Content"
           startIcon={<IoIosAddCircle className="text-xl" />}
-          onClick={()=>setShowForm(!showForm)}
+          onClick={() => setShowForm((prev) => !prev)}
         />
       </div>
-      <div className="h-full w-full flex justify-center items-center ">
-        <AnimatePresence>
-        {
-          showForm && 
-          <motion.div 
-            className=" p-8  top-0 rounded-xl  border-1 border-gray-700"
+      
+      {/* Modal Overlay */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center"
             initial={{x:550,y:-200,opacity: 0, scale: 0.1, filter: "blur(10px)"}}
             animate={{x:0,y:0, opacity: 1, scale: 1, filter: "blur(0px)"}}
-            transition={{duration: 1, type: "spring"}}
+            transition={{duration: 1, type: 'spring'}}
             exit={{x:550,y:-200,opacity: 0, scale: 0.1, filter: "blur(10px)"}}
           >
-            <Form setShowForm={setShowForm}/>
+            {/* Optionally, you can add a semi-transparent background */}
+            <div className="absolute inset-0 bg-black opacity-50" onClick={() => setShowForm(false)}></div>
+            
+            {/* Centered Form */}
+            <motion.div
+              className="relative p-8 rounded-xl border border-gray-700 bg-white dark:bg-primaryBlack"
+              initial={{ scale: 0.1, opacity: 0, filter: "blur(10px)" }}
+              animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+              exit={{ scale: 0.1, opacity: 0, filter: "blur(10px)" }}
+              transition={{ duration: 0.5, type: "spring" }}
+            >
+              <Form setShowForm={setShowForm} />
+            </motion.div>
           </motion.div>
-        }
-        </AnimatePresence>
-        
-      </div>
-      
+        )}
+      </AnimatePresence>
     </div>
   );
 };
