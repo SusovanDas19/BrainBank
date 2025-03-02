@@ -35,6 +35,7 @@ function App() {
 function Layout() {
   const token = localStorage.getItem("tokenBB");
   const showForm = useRecoilValue(showFormState);
+  console.log("Layout component mounted");
 
   return (
     <div className="h-full w-full flex flex-col">
@@ -48,8 +49,7 @@ function Layout() {
             <div className="w-50 min-h-screen overflow-hidden">
               <SideBar />
             </div>
-            <div className="flex-1 min-h-full overflow-y-auto transition-all duration-300">
-              {/* This inner wrapper will be blurred */}
+            <div className="flex-1 h-full overflow-y-auto transition-all duration-300">
               <div className={`${showForm ? "filter blur-sm" : ""}`}>
                 <Outlet />
               </div>

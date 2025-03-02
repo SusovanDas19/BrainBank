@@ -3,52 +3,89 @@ import { useEffect, useState } from "react";
 import { useToast } from "../UI/ToastProvider";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
-import { showFormState } from "../../store/atoms/formAtom";
+import { callBackend } from "../../store/atoms/backednCallAtom";
+import { ContainerYT } from "../UI/ContainerYT";
+import { selectOpt } from "../../store/atoms/formAtom";
+
+export interface ResponseStr {
+  type: string;
+  description: string;
+  link: string;
+  tags: [string];
+  title: string;
+  date: string;
+  userId: { _id: string; username: string };
+  _id: string;
+}
 
 export const Youtube = () => {
   const setCurrtab = useSetRecoilState(currSidebar);
   const [videos, setVideos] = useState([]);
-  const {addToast} = useToast();
-  const showFrom = useRecoilValue(showFormState);
-  useEffect(()=>{
+  const { addToast } = useToast();
+  const isCallBackend = useRecoilValue(callBackend);
+  const setCallBackend = useSetRecoilState(callBackend);
+  const setSelectedOption = useSetRecoilState(selectOpt);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
     setCurrtab("Youtube");
-    const getAllVideos = async ()=>{
-      try{
+    setSelectedOption("Youtube");
+
+    const getAllVideos = async () => {
+      try {
         const token = localStorage.getItem("tokenBB");
-        const response = await axios.get("http://localhost:3000/v1/content/fetch?type=Youtube",{
-          headers: {
-            Authorization: token,
+        const response = await axios.get(
+          "http://localhost:3000/v1/content/fetch?type=Youtube",
+          {
+            headers: {
+              Authorization: token,
+            },
           }
-        })
-        if(response.status === 201){
+        );
+        if (response.status === 201) {
           setVideos(response.data.AllContent);
-          console.log(response.data.AllContent);
-          addToast({
-            type: "success",
-            size: "md",
-            message: "All content fetched.",
-          });
         }
-      }catch(e){
+      } catch (e) {
         addToast({
           type: "failure",
           size: "md",
           message: "Content fetched fail",
         });
       }
-    }
+      setLoading(false);
+      setCallBackend(false);
+    };
     getAllVideos();
-  },[showFrom])
+  }, [isCallBackend]);
+
+  const removeVideo = (id: string) => {
+    setVideos((prevVideo) =>
+      prevVideo.filter((video: ResponseStr) => video._id !== id)
+    );
+  };
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-primaryBlack">
-      <div className="flex-1 overflow-y-auto pt-46 p-4 top-30">
-        <div className="grid grid-cols-3 w-full justify-center items-center">
-          {videos.map((video)=>(
-            //@ts-ignore
-            <YouTubeEmbed key={video._id} videoUrl={video.link}/>
+       {loading ? ( // Show a loading state before backend call finishes
+      <div className="w-full h-full flex items-center justify-center">
+        <h1 className="text-white text-3xl">Fetching...</h1>
+      </div>
+    ) : videos.length > 0 ? (
+      <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10">
+        <div className="grid grid-cols-4 gap-10 w-full justify-center items-center">
+          {videos.map((video : ResponseStr) => (
+            <ContainerYT
+              key={video._id}
+              video={<YouTubeEmbed videoUrl={video.link} />}
+              details={video}
+              removeVideo={removeVideo}
+            />
           ))}
         </div>
       </div>
+    ) : (
+      <div className="w-full h-full text-white text-center mt-20 text-9xl">
+        <h1>No content</h1>
+      </div>
+    )}
     </div>
   );
 };
@@ -59,18 +96,19 @@ const YouTubeEmbed = ({ videoUrl }: { videoUrl: string }) => {
     const videoIdMatch = url.match(
       /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
     );
-    
-    return videoIdMatch ? `https://www.youtube.com/embed/${videoIdMatch[1]}` : "";
+
+    return videoIdMatch
+      ? `https://www.youtube.com/embed/${videoIdMatch[1]}`
+      : "";
   };
 
   return (
     <div className="flex justify-center items-center p-4">
       {videoUrl ? (
         <iframe
-          className="w-80 aspect-video rounded-lg shadow-lg"
+          className="w-70 aspect-video rounded-lg shadow-lg"
           src={getYouTubeEmbedUrl(videoUrl)}
           title="YouTube Video"
-          
           allowFullScreen
         ></iframe>
       ) : (

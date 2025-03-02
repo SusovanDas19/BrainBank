@@ -1,0 +1,223 @@
+import { ReactElement, useState, useEffect, useRef } from "react";
+import { ResponseStr } from "../Tabs/Youtube";
+import { Button } from "./Button";
+import { AnimatePresence, motion } from "motion/react";
+import { MdOutlineCancelPresentation } from "react-icons/md";
+import { IoMdLink } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import axios from "axios";
+import { useToast } from "./ToastProvider";
+
+interface YtContainerProps {
+  video: ReactElement;
+  details: ResponseStr;
+  removeVideo: (id: string) => void;
+}
+
+export const ContainerYT = ({
+  video,
+  details,
+  removeVideo,
+}: YtContainerProps) => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showOpt, setShowOpt] = useState(false);
+  const optRef = useRef<HTMLDivElement>(null)
+  const {addToast} = useToast();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000); 
+
+    const handleClickOutside = (event: MouseEvent)=>{
+      if(optRef.current && !optRef.current?.contains(event.target as Node)){
+        setShowDetails(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>{
+      clearTimeout(timer)
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleDelete = async () => {
+    const token = localStorage.getItem("tokenBB");
+    try {
+      const response = await axios.delete(
+        "http://localhost:3000/v1/content/remove",
+        {
+          data: { contentId: details._id },
+          headers: { Authorization: token },
+        }
+      );
+
+      if (response.status === 200) {
+        removeVideo(details._id);
+        setShowDetails(false);
+        setShowOpt(false);
+        addToast({
+          type: "success",
+          size: "md",
+          message: "Content deleted successfully"
+        })
+      }
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        if (e.response?.status === 400) {
+          addToast({
+            type: "error",
+            size: "md",
+            message: "Contetnt does not found",
+          });
+        } else {
+          addToast({
+            type: "failure",
+            size: "md",
+            message: "Internal server error",
+          });
+        }
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="relative flex flex-col justify-center items-center animate-pulse">
+        <div className="w-70 aspect-video rounded-lg bg-gray-300"></div>
+        <div className="w-20 h-8 absolute -bottom-5 bg-gray-300 opacity-0 group-hover:opacity-100"></div>
+      </div>
+    );
+  }
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="relative flex flex-col group justify-center items-center "
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ scale: 0.5, filter: "blur(10px)" }}
+      >
+        <div>{video}</div>
+
+        {/* Button to toggle details */}
+        <div className="absolute -bottom-5 opacity-0 group-hover:opacity-100">
+          {!showDetails && (
+            <Button
+              variant="secondary"
+              type="button"
+              size="sm"
+              text={showDetails ? "Close" : "Details"}
+              onClick={() => setShowDetails(!showDetails)}
+            />
+          )}
+        </div>
+
+        <AnimatePresence>
+          {showDetails && (
+            <motion.div
+              key={details._id}
+              className="absolute top-45  w-70  rounded-md bg-white/5 dark:bg-black/30 backdrop-blur-md border border-blackOrange/50  p-2 shadow-lg z-4 font-primary"
+              initial={{ y: -50, opacity: 0, filter: "blur(10px)" }}
+              animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+              transition={{ duration: 1, ease: "backOut" }}
+              exit={{ y: -50, opacity: 0, filter: "blur(10px)" }}
+              ref={optRef}
+            >
+              <h1 className="text-lg font-semibold text-black dark:text-white">
+                {details.title}
+              </h1>
+              <p className="text-sm text-black dark:text-white">
+                {details.description}
+              </p>
+              <a
+                href={details.link}
+                className="w-15 text-blue-600 flex flex-row items-center gap-2 text-lg dark:text-blue-500 font-semibold"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IoMdLink />
+                Link
+              </a>
+              <p className="text-black dark:text-white">
+                Created At: <strong>{details.date}</strong>
+              </p>
+              <div className="flex flex-row gap-4">
+                {details.tags.map((tag, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-center max-w-[110px] bg-transparent px-2 rounded-2xl text-black border-1 dark:text-white font-primary text-lg font-bold border-gray-700 group"
+                  >
+                    <p className="truncate text-gray-300">
+                      <span className="text-blackOrange">#</span>
+                      {tag}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="text-black dark:text-white  cursor-pointer">
+                {showOpt ? (
+                  <Options
+                    setShowOpt={setShowOpt}
+                    setShowDetails={setShowDetails}
+                    handleDelete={handleDelete}
+                  />
+                ) : null}
+                {!showOpt && (
+                  <div
+                    className="absolute top-1 right-1 dark:text-white"
+                    onClick={() => setShowOpt(!showOpt)}
+                  >
+                    <BsThreeDotsVertical />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+interface OptionsProps {
+  setShowOpt: (value: boolean) => void;
+  setShowDetails: (value: boolean) => void;
+  handleDelete: () => void;
+}
+
+const Options = ({
+  setShowOpt,
+  setShowDetails,
+  handleDelete,
+}: OptionsProps) => {
+  return (
+    <div className="absolute  top-1 left-25 w-40 h-28  bg-gray-300 dark:bg-primaryBlack pt-5  rounded-md border-1 border-blackOrange/70">
+      <div className="absolute right-1 top-1" onClick={() => setShowOpt(false)}>
+        <BsThreeDotsVertical />
+      </div>
+      <div
+        className="p-2 pl-5 flex flex-row gap-2 justify-start items-center  cursor-pointer font-primary hover:bg-yellow-600/30"
+        onClick={() => {
+          setShowDetails(false);
+          setShowOpt(false);
+        }}
+      >
+        <MdOutlineCancelPresentation className="hover:text-red-600 text-lg" />
+        <span className="text-black dark:text-white text-xl">
+          Close Details
+        </span>
+      </div>
+      <div className="border-b-1 w-full  border-gray-700"></div>
+      <div
+        className="p-2 flex pl-5 group felx-row gap-2 hover:bg-red-600/20 justify-start items-center cursor-pointer  font-primary"
+        onClick={handleDelete}
+      >
+        <MdDelete className="hover:text-whiteOrange dark:hover:text-blackOrange text-lg" />
+        <span className="text-black dark:text-white text-xl">Delete</span>
+      </div>
+    </div>
+  );
+};

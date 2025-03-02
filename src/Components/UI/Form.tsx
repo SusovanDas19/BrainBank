@@ -8,6 +8,9 @@ import { motion } from "motion/react";
 import { Button } from "./Button";
 import axios from "axios";
 import { useToast } from "./ToastProvider";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { callBackend } from "../../store/atoms/backednCallAtom";
+import { selectOpt } from "../../store/atoms/formAtom";
 
 
 interface formProps {
@@ -24,7 +27,7 @@ interface formDataInterface {
 }
 
 export const Form = (props: formProps) => {
-  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [selectedOption, setSelectedOption] = useRecoilState(selectOpt);
   const today = new Date().toLocaleDateString("en-CA");
 
   const [showInfo, setShowInfo] = useState<boolean>(false);
@@ -33,6 +36,7 @@ export const Form = (props: formProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const setShowForm = props.setShowForm;
   const token: string = localStorage.getItem("tokenBB") || "";
+  const setCallBackend = useSetRecoilState(callBackend);
   const { addToast } = useToast();
 
   // Keydown event handler (Memoized)
@@ -104,6 +108,7 @@ export const Form = (props: formProps) => {
         form.reset();
         setSelectedOption("");
         setTags([]);
+        setCallBackend(true)
       
       }
     } catch (e: unknown) {
@@ -173,7 +178,7 @@ export const Form = (props: formProps) => {
         initial={{ opacity: 0.6 }}
         whileHover={{ scale: 1.2, opacity: 1 }}
         className="absolute group -bottom-7 -right-7 cursor-pointer text-red-600 text-2xl font-primary"
-        onClick={() => setShowForm(false)}
+        onClick={() => {setShowForm(false)}}
       >
         <MdOutlineCancelPresentation />
         <div className="opacity-0 group-hover:opacity-70 absolute -bottom-10 -right-5 border-2 px-1 rounded-md border-red-700 text-red-600 font-semibold bg-gray-200 dark:bg-gray-800">Cancel</div>

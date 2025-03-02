@@ -114,7 +114,7 @@ export const LogoutMenu = ({ handleLogout }: { handleLogout: () => void }) => {
   const username: string = localStorage.getItem("usernameBB") || "";
   return (
     
-    <motion.div
+    <div
       className="absolute z-50 top-2 right-5 w-50 h-60 flex justify-center items-center gap-5 flex-col bg-white  dark:bg-primaryBlack  rounded-sm rounded-tl-4xl rounded-br-4xl border-2 border-whiteOrange dark:border-blackOrange hover:border-3"
     >
       <div className="w-3/4 font-primary text-xl text-white relative flex justify-center items-center">
@@ -123,6 +123,6 @@ export const LogoutMenu = ({ handleLogout }: { handleLogout: () => void }) => {
       </div>
       <Tabs text={username} size="lg" variant="navTabs"></Tabs>
       <Button text="Logout" size="md" variant="secondary" onClick={handleLogout} />
-    </motion.div>
+    </div>
   );
 };

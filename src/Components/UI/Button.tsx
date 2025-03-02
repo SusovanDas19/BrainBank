@@ -17,13 +17,19 @@ const VariantStyle = {
   secondary: "bg-transparent text-black border-1 hover:border-2 border-black dark:border-white hover:bg-whiteOrange dark:hover:bg-whiteOrange hover:ring-1 hover:ring-whiteOrange dark:hover:ring-blackOrange",
 };
 
-const defaultStyle = "flex overflow-hidden items-center text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 shadow  h-9 px-4 py-2 max-w-52 whitespace-pre md:flex group relative w-full justify-center gap-2 rounded-md transition-all duration-200 ease-out ";
+const sizeStyle={
+  sm: "w-20 h-8",
+  md: "h-9 w-full",
+  lg: "",
+}
+
+const defaultStyle = "flex overflow-hidden items-center text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 shadow px-4 py-2 max-w-52 whitespace-pre md:flex group relative justify-center gap-2 rounded-md transition-all duration-200 ease-out ";
 
 export const Button = (props: ButtonProps) => {
   return (
-    <motion.div whileHover={{scale: 1.1}} whileTap={{scale: 0.8}}>
+    <motion.div whileTap={{scale: 0.8}}>
       <button
-        className={`${defaultStyle} ${VariantStyle[props.variant]}`}
+        className={`${defaultStyle} ${VariantStyle[props.variant]} ${sizeStyle[props.size]}`}
         onClick={props.onClick}
         type={props.type}
         disabled={props.disabled}
