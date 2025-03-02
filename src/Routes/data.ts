@@ -7,7 +7,7 @@ const dataRouter = Router();
 dataRouter.post("/add", userAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId: string = req.userId || "";
-    const { title, description, type, link, tags } = req.body;
+    const { title, description, type, link, tags, date } = req.body;
 
   
     if (!title || !description || !type) {
@@ -23,6 +23,7 @@ dataRouter.post("/add", userAuth, async (req: Request, res: Response): Promise<v
       link,
       tags,
       userId,
+      date,
     });
 
     res.status(201).json({
@@ -66,7 +67,7 @@ dataRouter.get("/fetch", userAuth, async (req:Request, res:Response): Promise<vo
 
 dataRouter.delete("/remove", userAuth, async (req: Request, res: Response): Promise<void>=>{
   const userId: string = req.userId || "";
-  const contentId: string = req.body.contentId;
+  const {contentId}  = req.body;
 
   try{
     const isValidContentId = await newContentModel.findOne({_id: contentId});

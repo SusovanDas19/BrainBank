@@ -12,7 +12,7 @@ const newContentSchema = new Schema({
     description: {type: String, required: true},
     type: {type: String, required: true},
     link: {type: String},
-    createdAt: {type: Date},
+    date: {type: String},
     tags: {type: [String]},
     userId: {type: String, ref: 'users'},
 })

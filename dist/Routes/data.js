@@ -19,7 +19,7 @@ const dataRouter = (0, express_1.default)();
 dataRouter.post("/add", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.userId || "";
-        const { title, description, type, link, tags } = req.body;
+        const { title, description, type, link, tags, date } = req.body;
         if (!title || !description || !type) {
             res.status(400).json({ error: "Title, description, and type are required." });
             return;
@@ -32,6 +32,7 @@ dataRouter.post("/add", userAuth_1.userAuth, (req, res) => __awaiter(void 0, voi
             link,
             tags,
             userId,
+            date,
         });
         res.status(201).json({
             message: "New content created successfully",
@@ -70,7 +71,7 @@ dataRouter.get("/fetch", userAuth_1.userAuth, (req, res) => __awaiter(void 0, vo
 }));
 dataRouter.delete("/remove", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.userId || "";
-    const contentId = req.body.contentId;
+    const { contentId } = req.body;
     try {
         const isValidContentId = yield db_1.newContentModel.findOne({ _id: contentId });
         if (!isValidContentId) {
