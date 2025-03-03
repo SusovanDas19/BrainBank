@@ -1,37 +1,20 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Toast, ToastProps } from "./Toast";
 import { AnimatePresence, motion } from "motion/react";
+import { useRecoilState } from "recoil";
+import { allToasts } from "../../store/atoms/toastAtom";
 
-interface ToastContextProps {
-  addToast: (toast: ToastProps) => void;
-  removeToast: (id: number) => void;
-}
-
-const ToastContext = createContext<ToastContextProps | undefined>(undefined);
-
-let toastId = 0;
-
-export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [toasts, setToasts] = useState<Array<{ id: number } & ToastProps>>([]);
-
-  const addToast = (toast: ToastProps) => {
-    const id = toastId++;
-    setToasts((prevToasts) => [...prevToasts, { id, ...toast }]);
-    setTimeout(() => removeToast(id), 5000);
-  };
-
-  const removeToast = (id: number) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
-  };
+export const ToastProvider = () => {
+  
+  const {allToast, removeToast} = useToast();
+ 
 
   return (
-    <ToastContext.Provider value={{ addToast, removeToast }}>
-      {children}
+    <>
       {createPortal(
         <motion.div className="fixed top-0 right-0 p-4 space-y-2 z-50">
           <AnimatePresence>
-            {toasts.map((toast) => (
+            {allToast.map((toast) => (
               <motion.div
                 key={toast.id}
                 initial={{ x: 100, opacity: 0, filter: "blur(0px)" }}
@@ -50,14 +33,28 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         </motion.div>,
         document.body
       )}
-    </ToastContext.Provider>
+    </>
   );
 };
 
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error("useToast must be used within a ToastProvider");
+
+let toastId = 0;
+
+export const useToast = ()=>{
+  const [allToast, setAllToasts] = useRecoilState(allToasts);
+
+  const addToast = (toast: Omit<ToastProps, "id">)=>{
+    const newToast = {...toast , id: toastId++};
+    setAllToasts((prevToasts) => [...prevToasts, newToast]);
+
+    setTimeout(()=> removeToast(newToast.id), 5000);
+  };
+
+  const removeToast = (id:number)=>{
+
+    setAllToasts((prevToast)=> prevToast.filter((toast)=> toast.id !== id));
+
   }
-  return context;
-};
+
+  return {allToast, addToast, removeToast};
+}

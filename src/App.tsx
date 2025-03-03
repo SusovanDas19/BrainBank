@@ -16,7 +16,7 @@ function App() {
 
   return (
     <RecoilRoot>
-      <ToastProvider>
+        <ToastProvider/>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout />}>
@@ -27,7 +27,7 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
-      </ToastProvider>
+      
     </RecoilRoot>
   );
 }

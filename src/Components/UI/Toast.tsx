@@ -6,6 +6,7 @@ import { RxCross2 } from "react-icons/rx";
 import { ImCancelCircle } from "react-icons/im";
 
 export interface ToastProps {
+  id: number
   type: "success" | "progress" | "error" | "failure";
   size: "sm" | "md" | "lg";
   message: string;
@@ -32,8 +33,8 @@ const Icons = {
   failure: <ImCancelCircle className="text-red-600"/>,
 };
 
-const toastDefaultStyle =
-  "bg-white dark:bg-primaryBlack text-black dark:text-white relative group flex items-center rounded-lg shadow-sm border-1";
+const toastDefaultStyle = "bg-white dark:bg-primaryBlack text-black dark:text-white relative group flex items-center rounded-lg shadow-sm border-1";
+
 
 export const Toast = ({ type, size, message, removeToast }: ToastProps) => {
   return (
