@@ -8,6 +8,7 @@ import { MdDelete } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import axios from "axios";
 import { useToast } from "./ToastProvider";
+import useClickOutside from "../../customHooks/useClickOutside";
 
 interface YtContainerProps {
   video: ReactElement;
@@ -30,17 +31,15 @@ export const ContainerYT = ({
       setLoading(false);
     }, 1000); 
 
-    const handleClickOutside = (event: MouseEvent)=>{
-      if(optRef.current && !optRef.current?.contains(event.target as Node)){
-        setShowDetails(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
     return () =>{
       clearTimeout(timer)
-      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useClickOutside(optRef, () => {
+    setShowDetails(false);
+    setShowOpt(false);
+  });
 
   const handleDelete = async () => {
     const token = localStorage.getItem("tokenBB");

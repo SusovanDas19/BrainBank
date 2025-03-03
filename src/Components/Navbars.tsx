@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { LogoutMenu } from "./Auth";
 import { Tabs } from "./UI/Tabs";
 import ThemeToggle from "./UI/ThemeToggle";
@@ -15,6 +15,7 @@ import { dropMenuAtom } from "../store/atoms/dropMenuAtom";
 import { DropDownMenu } from "./DropeDownMenu";
 import { Button } from "./UI/Button";
 import { motion, AnimatePresence } from "motion/react";
+import useClickOutside from "../customHooks/useClickOutside";
 
 export const Navbar = () => {
   const [open, setOpen] = useRecoilState(dropMenuAtom);
@@ -24,24 +25,13 @@ export const Navbar = () => {
   const token = localStorage.getItem("tokenBB");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-      if (
-        logOutRef.current &&
-        !logOutRef.current.contains(event.target as Node)
-      ) {
-        setShowLogout(false);
-      }
-    };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [menuRef, setOpen, logOutRef, setShowLogout]);
+  useClickOutside(menuRef, ()=>{
+    setOpen(false);
+  })
+  useClickOutside(logOutRef, ()=>{
+    setShowLogout(false);
+  })
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {

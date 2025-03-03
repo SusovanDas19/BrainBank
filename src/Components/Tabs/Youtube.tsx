@@ -91,7 +91,6 @@ export const Youtube = () => {
 };
 
 const YouTubeEmbed = ({ videoUrl }: { videoUrl: string }) => {
-  // Extract YouTube video ID from the URL
   const getYouTubeEmbedUrl = (url: string) => {
     const videoIdMatch = url.match(
       /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
@@ -102,17 +101,19 @@ const YouTubeEmbed = ({ videoUrl }: { videoUrl: string }) => {
       : "";
   };
 
+  const embedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) : "";
+
   return (
     <div className="flex justify-center items-center p-4">
-      {videoUrl ? (
+      {embedUrl ? (
         <iframe
           className="w-70 aspect-video rounded-lg shadow-lg"
-          src={getYouTubeEmbedUrl(videoUrl)}
+          src={embedUrl}
           title="YouTube Video"
           allowFullScreen
         ></iframe>
       ) : (
-        <p className="text-center text-gray-500">No video URL provided</p>
+        <p className="text-center text-gray-500 p-4 border-1 border-red-600/40">⚠️No YouTube URL provided</p>
       )}
     </div>
   );
