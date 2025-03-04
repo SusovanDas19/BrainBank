@@ -10,6 +10,8 @@ import "./App.css";
 import { ToastProvider } from "./Components/UI/ToastProvider";
 import { Header } from "./Components/Header";
 import { showFormState } from "./store/atoms/formAtom";
+import { Twitter } from "./Components/Tabs/Twitter";
+import { Linkedin } from "./Components/Tabs/LinkedIn";
 
 function App() {
   const token = localStorage.getItem("tokenBB");
@@ -24,6 +26,8 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/Recent" element={token ? <Recent /> : <Auth />} />
               <Route path="/Youtube" element={token ? <Youtube /> : <Auth />} />
+              <Route path="/Twitter" element={token ? <Twitter /> : <Auth />} />
+              <Route path="/Linkedin" element={token ? <Linkedin /> : <Auth />} />
             </Route>
           </Routes>
         </BrowserRouter>
@@ -35,7 +39,6 @@ function App() {
 function Layout() {
   const token = localStorage.getItem("tokenBB");
   const showForm = useRecoilValue(showFormState);
-  console.log("Layout component mounted");
 
   return (
     <div className="h-full w-full flex flex-col">

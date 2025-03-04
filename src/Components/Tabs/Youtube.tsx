@@ -72,6 +72,7 @@ export const Youtube = () => {
       <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10">
         <div className="grid grid-cols-4 gap-10 w-full justify-center items-center">
           {videos.map((video : ResponseStr) => (
+            
             <ContainerYT
               key={video._id}
               video={<YouTubeEmbed videoUrl={video.link} />}
@@ -86,6 +87,7 @@ export const Youtube = () => {
         <h1>No content</h1>
       </div>
     )}
+
     </div>
   );
 };

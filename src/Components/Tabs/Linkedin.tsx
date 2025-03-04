@@ -1,0 +1,128 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useToast } from "../UI/ToastProvider";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { currSidebar } from "../../store/atoms/currSideTab";
+import { callBackend } from "../../store/atoms/backednCallAtom";
+import { selectOpt } from "../../store/atoms/formAtom";
+import { ContainerYT } from "../UI/ContainerYT";
+import { ResponseStr } from "./Youtube";
+
+export interface LinkedInResponse {
+  type: string;
+  content: string;
+  link: string;
+  date: string;
+  userId: { _id: string; username: string };
+  _id: string;
+}
+
+export const Linkedin = () => {
+  const setCurrtab = useSetRecoilState(currSidebar);
+  const [posts, setPosts] = useState([]);
+  const { addToast } = useToast();
+  const isCallBackend = useRecoilValue(callBackend);
+  const setCallBackend = useSetRecoilState(callBackend);
+  const setSelectedOption = useSetRecoilState(selectOpt);
+  const [loading, setLoading] = useState(true);
+  const theme: string = localStorage.getItem("theme") || "";
+
+  useEffect(() => {
+    setCurrtab("Linkedin");
+    setSelectedOption("Linkedin");
+
+    const getAllPosts = async () => {
+      try {
+        const token = localStorage.getItem("tokenBB");
+        const response = await axios.get(
+          "http://localhost:3000/v1/content/fetch?type=Linkedin",
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        );
+        if (response.status === 201) {
+          setPosts(response.data.AllContent);
+          console.log(response.data.AllContent);
+        }
+      } catch (e) {
+        addToast({
+          type: "failure",
+          size: "md",
+          message: "Failed to fetch LinkedIn posts",
+        });
+      }
+      setLoading(false);
+      setCallBackend(false);
+    };
+    getAllPosts();
+  }, [isCallBackend]);
+
+  const removePost = (id: string) => {
+    setPosts((prevPosts) =>
+      prevPosts.filter((post: ResponseStr) => post._id !== id)
+    );
+  };
+
+  return (
+    <div className="h-screen flex flex-col bg-white dark:bg-primaryBlack">
+      {loading ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <h1 className="text-white text-3xl">Fetching...</h1>
+        </div>
+      ) : posts.length > 0 ? (
+        <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10">
+          <div className="columns-3 gap-4">
+            {posts.map((post: ResponseStr) => (
+              <div key={post._id} className=" break-inside-avoid mb-10">
+                <ContainerYT
+                  video={<LinkedInEmbed postUrl={post.link}/>}
+                  details={post}
+                  removeVideo={removePost}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="w-full h-full text-white text-center mt-20 text-9xl">
+          <h1>No LinkedIn posts available</h1>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+const getEmbedUrl = (postUrl: string) => {
+    const match = postUrl.match(/([a-zA-Z]+)-(\d+)/);
+    return match ? `https://www.linkedin.com/embed/feed/update/urn:li:${match[1]}:${match[2]}` : "";
+};  
+
+const LinkedInEmbed = ({ postUrl }: { postUrl: string }) => {
+    console.log("Before: "+ postUrl);
+    const embedUrl = getEmbedUrl(postUrl);
+    console.log("After: " + embedUrl);
+  
+    return (
+      <div className="w-80 h-auto flex justify-center items-center p-4">
+        {embedUrl ? (
+          <iframe
+            src={embedUrl}
+            title="LinkedIn Post"
+            className="w-96 h-96 border border-gray-300 dark:border-gray-600 rounded-lg"
+            allowFullScreen
+          ></iframe>
+        ) : (
+          <p className="text-center text-gray-500 p-4 border-1 border-red-600/40">
+            ⚠️ Invalid LinkedIn post URL
+          </p>
+        )}
+      </div>
+    );
+  };
+  
+  
+
+export default Linkedin;

@@ -5,6 +5,7 @@ import { signInUpToggel } from "../store/atoms/signInUpToggel";
 import { Button } from "./UI/Button";
 import axios from "axios";
 import { Tabs } from "./UI/Tabs";
+import { useToast } from "./UI/ToastProvider";
 
 export const Auth = () => {
   const signInUp = useRecoilValue(signInUpToggel);
@@ -19,6 +20,7 @@ export const Auth = () => {
 
 const Signin = () => {
   const setShowSignInUp = useSetRecoilState(signInUpToggel);
+  const {addToast} = useToast();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -32,12 +34,26 @@ const Signin = () => {
       const response = await axios.post("http://localhost:3000/v1/user/signin", data);
       localStorage.setItem("tokenBB", response.data.token);
       localStorage.setItem("usernameBB", response.data.username);
+      addToast({
+        type: "success",
+        size: "md",
+        message: "Login successful"
+      })
       window.location.href = "/";
+      
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.message || "An error occurred. Please try again.");
+        addToast({
+          type: "error",
+          size: "md",
+          message: `${error.response?.data?.message || "An error occurred. Please try again."} `
+        })
       } else {
-        alert("An unexpected error occurred. Please try again.");
+        addToast({
+          type: "failure",
+          size: "md",
+          message: "Internal server error"
+        })
       }
     }
   };
@@ -65,6 +81,7 @@ const Signin = () => {
 
 const Signup = () => {
   const setShowSignInUp = useSetRecoilState(signInUpToggel);
+  const {addToast} = useToast();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -77,13 +94,25 @@ const Signup = () => {
 
     try {
       await axios.post("http://localhost:3000/v1/user/signup", data);
-      alert("Signup successful. Please sign in.");
+      addToast({
+        type: "success",
+        size: "md",
+        message: "Signup successful. Please sign in."
+      })
       setShowSignInUp("signin");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.message || "An error occurred. Please try again.");
+        addToast({
+          type: "error",
+          size: "md",
+          message: `${error.response?.data?.message || "An error occurred. Please try again."} `
+        })
       } else {
-        alert("An unexpected error occurred. Please try again.");
+        addToast({
+          type: "failure",
+          size: "md",
+          message: "Internal server error"
+        })
       }
     }
   };

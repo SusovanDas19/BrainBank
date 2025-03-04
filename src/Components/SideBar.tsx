@@ -1,7 +1,6 @@
 import { motion } from "motion/react";
 import { BsTwitterX } from "react-icons/bs";
 import { GrYoutube } from "react-icons/gr";
-import { FaFacebook } from "react-icons/fa";
 import { BsLinkedin } from "react-icons/bs";
 import { SiNotion } from "react-icons/si";
 import { VscGithubInverted } from "react-icons/vsc";
@@ -22,7 +21,6 @@ const IconDefaultStyle = `text-gray-800 dark:text-gray-400 text-xl`;
 const tabData = [
   { id: "Recent", text: "Recent", icon: MdAccessTimeFilled, activeColor: `text-amber-400` },
   { id: "Youtube", text: "YouTube", icon: GrYoutube, activeColor: "text-red-600" },
-  { id: "Facebook", text: "Facebook", icon: FaFacebook, activeColor: "text-blue-600" },
   { id: "Twitter", text: "Twitter/X", icon: BsTwitterX, activeColor: "text-white" },
   { id: "Linkedin", text: "LinkedIn", icon: BsLinkedin, activeColor: "text-blue-500" },
   { id: "Notion", text: "Notion", icon: SiNotion, activeColor: "text-white " },
@@ -36,7 +34,6 @@ const tabData = [
 const hoverColors: Record<string, string> = {
   All: "group-hover:text-amber-400",
   Youtube: "group-hover:text-red-600",
-  Facebook: "group-hover:text-blue-600",
   Twitter: "group-hover:text-white",
   Linkedin: "group-hover:text-blue-500",
   Notion: "group-hover:text-white",

@@ -29,7 +29,7 @@ export const ContainerYT = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); 
+    }, 2000); 
 
     return () =>{
       clearTimeout(timer)
@@ -98,7 +98,7 @@ export const ContainerYT = ({
         animate={{ opacity: 1 }}
         exit={{ scale: 0.5, filter: "blur(10px)" }}
       >
-        <div>{video}</div>
+        <div className="w-full">{video}</div>
 
         {/* Button to toggle details */}
         <div className="absolute -bottom-5 opacity-0 group-hover:opacity-100">
