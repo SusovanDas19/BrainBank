@@ -5,7 +5,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { callBackend } from "../../store/atoms/backednCallAtom";
 import { selectOpt } from "../../store/atoms/formAtom";
-import { ContainerYT } from "../UI/ContainerYT";
+import { Card } from "../UI/Card";
 import { ResponseStr } from "./Youtube";
 
 export interface LinkedInResponse {
@@ -25,7 +25,7 @@ export const Linkedin = () => {
   const setCallBackend = useSetRecoilState(callBackend);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [loading, setLoading] = useState(true);
-  const theme: string = localStorage.getItem("theme") || "";
+  
 
   useEffect(() => {
     setCurrtab("Linkedin");
@@ -57,6 +57,16 @@ export const Linkedin = () => {
       setCallBackend(false);
     };
     getAllPosts();
+
+    const timer = setTimeout(()=>{
+      addToast({
+        type: "progress",
+        size: "md",
+        message: "Embedding Linkedin Posts may take a moment..."
+      })
+    }, 1000)
+  
+    return ()=>{clearTimeout(timer)}
   }, [isCallBackend]);
 
   const removePost = (id: string) => {
@@ -73,15 +83,14 @@ export const Linkedin = () => {
         </div>
       ) : posts.length > 0 ? (
         <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10">
-          <div className="columns-3 gap-4">
+          <div className="grid grid-cols-4 gap-10 w-full justify-center items-center pl-10 pr-10 mb-50">
             {posts.map((post: ResponseStr) => (
-              <div key={post._id} className=" break-inside-avoid mb-10">
-                <ContainerYT
-                  video={<LinkedInEmbed postUrl={post.link}/>}
+                <Card
+                  preview={<LinkedInEmbed postUrl={post.link}/>}
                   details={post}
-                  removeVideo={removePost}
+                  removeContent={removePost}
                 />
-              </div>
+              
             ))}
           </div>
         </div>
@@ -106,7 +115,7 @@ const LinkedInEmbed = ({ postUrl }: { postUrl: string }) => {
     console.log("After: " + embedUrl);
   
     return (
-      <div className="w-80 h-auto flex justify-center items-center p-4">
+      <div className="w-70 h-auto flex justify-center items-center p-4">
         {embedUrl ? (
           <iframe
             src={embedUrl}

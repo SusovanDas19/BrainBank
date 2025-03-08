@@ -8,18 +8,17 @@ import { MdDelete } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import axios from "axios";
 import { useToast } from "./ToastProvider";
-import useClickOutside from "../../customHooks/useClickOutside";
 
 interface YtContainerProps {
-  video: ReactElement;
+  preview?: ReactElement;
   details: ResponseStr;
-  removeVideo: (id: string) => void;
+  removeContent: (id: string) => void;
 }
 
-export const ContainerYT = ({
-  video,
+export const Card = ({
+  preview,
   details,
-  removeVideo,
+  removeContent,
 }: YtContainerProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,17 +28,19 @@ export const ContainerYT = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000); 
+    }, 1000); 
 
+    const handleClickOutside = (event: MouseEvent)=>{
+      if(optRef.current && !optRef.current?.contains(event.target as Node)){
+        setShowDetails(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
     return () =>{
       clearTimeout(timer)
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  useClickOutside(optRef, () => {
-    setShowDetails(false);
-    setShowOpt(false);
-  });
 
   const handleDelete = async () => {
     const token = localStorage.getItem("tokenBB");
@@ -53,7 +54,7 @@ export const ContainerYT = ({
       );
 
       if (response.status === 200) {
-        removeVideo(details._id);
+        removeContent(details._id);
         setShowDetails(false);
         setShowOpt(false);
         addToast({
@@ -98,7 +99,7 @@ export const ContainerYT = ({
         animate={{ opacity: 1 }}
         exit={{ scale: 0.5, filter: "blur(10px)" }}
       >
-        <div className="w-full">{video}</div>
+        <div>{preview}</div>
 
         {/* Button to toggle details */}
         <div className="absolute -bottom-5 opacity-0 group-hover:opacity-100">

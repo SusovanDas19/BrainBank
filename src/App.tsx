@@ -11,7 +11,10 @@ import { ToastProvider } from "./Components/UI/ToastProvider";
 import { Header } from "./Components/Header";
 import { showFormState } from "./store/atoms/formAtom";
 import { Twitter } from "./Components/Tabs/Twitter";
-import { Linkedin } from "./Components/Tabs/LinkedIn";
+import { Linkedin } from "./Components/Tabs/Linkedin";
+import { Notion } from "./Components/Tabs/Notion";
+import { Github } from "./Components/Tabs/Github";
+import { Aichat } from "./Components/Tabs/Aichat";
 
 function App() {
   const token = localStorage.getItem("tokenBB");
@@ -28,6 +31,9 @@ function App() {
               <Route path="/Youtube" element={token ? <Youtube /> : <Auth />} />
               <Route path="/Twitter" element={token ? <Twitter /> : <Auth />} />
               <Route path="/Linkedin" element={token ? <Linkedin /> : <Auth />} />
+              <Route path="/Notion" element={token ? <Notion /> : <Auth />} />
+              <Route path="/Github" element={token ? <Github /> : <Auth />} />
+              <Route path="/Aichat" element={token ? <Aichat /> : <Auth />} />
             </Route>
           </Routes>
         </BrowserRouter>

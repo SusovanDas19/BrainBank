@@ -5,7 +5,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { callBackend } from "../../store/atoms/backednCallAtom";
 import { selectOpt } from "../../store/atoms/formAtom";
-import { ContainerYT } from "../UI/ContainerYT";
+import { Card  } from "../UI/Card";
 import { ResponseStr } from "./Youtube";
 
 export interface TweetResponse {
@@ -25,7 +25,7 @@ export const Twitter = () => {
   const setCallBackend = useSetRecoilState(callBackend);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [loading, setLoading] = useState(true);
-  const theme: string = localStorage.getItem("theme") || ""
+  const theme: string = localStorage.getItem("theme") || "";
 
   useEffect(() => {
     setCurrtab("Twitter");
@@ -57,6 +57,17 @@ export const Twitter = () => {
     };
     
     getAllTweets();
+
+    const timer = setTimeout(()=>{
+        addToast({
+          type: "progress",
+          size: "md",
+          message: "Embedding tweets may take a moment..."
+        })
+      }, 7000)
+    
+
+    return ()=>{clearTimeout(timer)}
   }, [isCallBackend]);
 
   const removeTweet = (id: string) => {
@@ -73,14 +84,14 @@ export const Twitter = () => {
         </div>
       ) : tweets.length > 0 ? (
         <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10">
-          <div className="columns-4 gap-4">
+          <div className="columns-4 gap-4 pr-10">
             {tweets.map((tweet: ResponseStr) => (
               <div key={tweet._id} className="break-inside-avoid mb-2">
-                <ContainerYT
+                <Card
                     key={tweet._id}
-                    video={<TwitterEmbed tweetUrl={tweet.link} theme={theme}/>}
+                    preview={<TwitterEmbed tweetUrl={tweet.link} theme={theme}/>}
                     details={tweet}
-                    removeVideo={removeTweet}
+                    removeContent={removeTweet}
                 />
               </div>
               

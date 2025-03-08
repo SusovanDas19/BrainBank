@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useToast } from "../UI/ToastProvider";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { callBackend } from "../../store/atoms/backednCallAtom";
-import { ContainerYT } from "../UI/ContainerYT";
+import { Card } from "../UI/Card";
 import { selectOpt } from "../../store/atoms/formAtom";
 
 export interface ResponseStr {
@@ -22,9 +22,8 @@ export const Youtube = () => {
   const setCurrtab = useSetRecoilState(currSidebar);
   const [videos, setVideos] = useState([]);
   const { addToast } = useToast();
-  const isCallBackend = useRecoilValue(callBackend);
-  const setCallBackend = useSetRecoilState(callBackend);
   const setSelectedOption = useSetRecoilState(selectOpt);
+  const [isCallBackend,setCallBackend] = useRecoilState(callBackend)
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setCurrtab("Youtube");
@@ -55,6 +54,17 @@ export const Youtube = () => {
       setCallBackend(false);
     };
     getAllVideos();
+
+    const timer = setTimeout(()=>{
+      addToast({
+        type: "progress",
+        size: "md",
+        message: "Embedding Youtube videos may take a moment..."
+      })
+    }, 3000)
+  
+    return ()=>{clearTimeout(timer)}
+
   }, [isCallBackend]);
 
   const removeVideo = (id: string) => {
@@ -64,7 +74,7 @@ export const Youtube = () => {
   };
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-primaryBlack">
-       {loading ? ( // Show a loading state before backend call finishes
+       {loading ? ( 
       <div className="w-full h-full flex items-center justify-center">
         <h1 className="text-white text-3xl">Fetching...</h1>
       </div>
@@ -72,12 +82,11 @@ export const Youtube = () => {
       <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10">
         <div className="grid grid-cols-4 gap-10 w-full justify-center items-center">
           {videos.map((video : ResponseStr) => (
-            
-            <ContainerYT
+            <Card
               key={video._id}
-              video={<YouTubeEmbed videoUrl={video.link} />}
+              preview={<YouTubeEmbed videoUrl={video.link} />}
               details={video}
-              removeVideo={removeVideo}
+              removeContent={removeVideo}
             />
           ))}
         </div>
@@ -87,12 +96,12 @@ export const Youtube = () => {
         <h1>No content</h1>
       </div>
     )}
-
     </div>
   );
 };
 
 const YouTubeEmbed = ({ videoUrl }: { videoUrl: string }) => {
+  // Extract YouTube video ID from the URL
   const getYouTubeEmbedUrl = (url: string) => {
     const videoIdMatch = url.match(
       /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
@@ -103,19 +112,17 @@ const YouTubeEmbed = ({ videoUrl }: { videoUrl: string }) => {
       : "";
   };
 
-  const embedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) : "";
-
   return (
     <div className="flex justify-center items-center p-4">
-      {embedUrl ? (
+      {videoUrl ? (
         <iframe
           className="w-70 aspect-video rounded-lg shadow-lg"
-          src={embedUrl}
+          src={getYouTubeEmbedUrl(videoUrl)}
           title="YouTube Video"
           allowFullScreen
         ></iframe>
       ) : (
-        <p className="text-center text-gray-500 p-4 border-1 border-red-600/40">⚠️No YouTube URL provided</p>
+        <p className="text-center text-gray-500">No video URL provided</p>
       )}
     </div>
   );
