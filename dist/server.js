@@ -44,6 +44,7 @@ const user_1 = __importDefault(require("./Routes/user"));
 const share_1 = __importDefault(require("./Routes/share"));
 const data_1 = __importDefault(require("./Routes/data"));
 const cors_1 = __importDefault(require("cors"));
+const ai_1 = __importDefault(require("./Routes/ai"));
 const port = process.env.PORT || 3000;
 const mongoUrl = process.env.MONGODB_URL || "";
 const app = (0, express_1.default)();
@@ -52,6 +53,7 @@ app.use(express_1.default.json());
 app.use("/v1/user", user_1.default);
 app.use("/v1/share/brain", share_1.default);
 app.use("/v1/content", data_1.default);
+app.use("/v1/Ai", ai_1.default);
 // app.use("/v1/find/", );
 mongoose_1.default
     .connect(mongoUrl)

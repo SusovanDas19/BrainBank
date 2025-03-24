@@ -6,6 +6,7 @@ import userRouter from "./Routes/user";
 import shareRouter from "./Routes/share";
 import dataRouter from "./Routes/data";
 import cors from "cors";
+import aiRouter from "./Routes/ai";
 const port = process.env.PORT || 3000;
 const mongoUrl = process.env.MONGODB_URL || "";
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use("/v1/user", userRouter);
 app.use("/v1/share/brain", shareRouter);
 app.use("/v1/content", dataRouter);
+app.use("/v1/Ai", aiRouter)
 // app.use("/v1/find/", );
 
 mongoose

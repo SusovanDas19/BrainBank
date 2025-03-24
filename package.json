@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/genai": "^0.4.0",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.7",
     "bcrypt": "^5.1.1",
