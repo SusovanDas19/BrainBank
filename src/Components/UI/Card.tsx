@@ -8,6 +8,9 @@ import { MdDelete } from "react-icons/md";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import axios from "axios";
 import { useToast } from "./ToastProvider";
+import useClickOutside from "../../customHooks/useClickOutside";
+import { RiDvdAiFill } from "react-icons/ri";
+import { Ai } from "../AI";
 
 interface YtContainerProps {
   preview?: ReactElement;
@@ -15,30 +18,26 @@ interface YtContainerProps {
   removeContent: (id: string) => void;
 }
 
-export const Card = ({
-  preview,
-  details,
-  removeContent,
-}: YtContainerProps) => {
+export const Card = ({ preview, details, removeContent }: YtContainerProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showOpt, setShowOpt] = useState(false);
-  const optRef = useRef<HTMLDivElement>(null)
-  const {addToast} = useToast();
+  const optRef = useRef<HTMLDivElement>(null);
+  const { addToast } = useToast();
+  const [showAiChat, setShowAiChat] = useState<boolean>(false);
+
+  useClickOutside(optRef, () => {
+    setShowDetails(false);
+    setShowOpt(false);
+   
+  });
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); 
+    }, 1000);
 
-    const handleClickOutside = (event: MouseEvent)=>{
-      if(optRef.current && !optRef.current?.contains(event.target as Node)){
-        setShowDetails(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>{
-      clearTimeout(timer)
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      clearTimeout(timer);
     };
   }, []);
 
@@ -60,8 +59,8 @@ export const Card = ({
         addToast({
           type: "success",
           size: "md",
-          message: "Content deleted successfully"
-        })
+          message: "Content deleted successfully",
+        });
       }
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
@@ -94,89 +93,112 @@ export const Card = ({
   return (
     <AnimatePresence>
       <motion.div
-        className="relative flex flex-col group justify-center items-center "
+        className="relative flex flex-col  justify-center items-center "
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ scale: 0.5, filter: "blur(10px)" }}
       >
-        <div>{preview}</div>
+        <div className="group">
+          <div>{preview}</div>
 
-        {/* Button to toggle details */}
-        <div className="absolute -bottom-5 opacity-0 group-hover:opacity-100">
-          {!showDetails && (
-            <Button
-              variant="secondary"
-              type="button"
-              size="sm"
-              text={showDetails ? "Close" : "Details"}
-              onClick={() => setShowDetails(!showDetails)}
-            />
-          )}
+          {/* Button to toggle details */}
+          <div className="absolute -bottom-5 left-30 opacity-0 group-hover:opacity-100">
+            {!showDetails && (
+              <Button
+                variant="secondary"
+                type="button"
+                size="sm"
+                text={showDetails ? "Close" : "Explore"}
+                onClick={() => setShowDetails(!showDetails)}
+              />
+            )}
+          </div>
         </div>
-
         <AnimatePresence>
-          {showDetails && (
-            <motion.div
-              key={details._id}
-              className="absolute top-45  w-70  rounded-md bg-white/5 dark:bg-black/30 backdrop-blur-md border border-blackOrange/50  p-2 shadow-lg z-4 font-primary"
-              initial={{ y: -50, opacity: 0, filter: "blur(10px)" }}
-              animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-              transition={{ duration: 1, ease: "backOut" }}
-              exit={{ y: -50, opacity: 0, filter: "blur(10px)" }}
-              ref={optRef}
-            >
-              <h1 className="text-lg font-semibold text-black dark:text-white">
-                {details.title}
-              </h1>
-              <p className="text-sm text-black dark:text-white">
-                {details.description}
-              </p>
-              <a
-                href={details.link}
-                className="w-15 text-blue-600 flex flex-row items-center gap-2 text-lg dark:text-blue-500 font-semibold"
-                target="_blank"
-                rel="noopener noreferrer"
+            {showDetails && (
+              <motion.div
+                key={details._id}
+                className="absolute top-45  w-70  rounded-md bg-white/5 dark:bg-black/30 backdrop-blur-md border border-blackOrange/50  p-2 shadow-lg z-4 font-primary"
+                initial={{ y: -50, opacity: 0, filter: "blur(10px)" }}
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                transition={{ duration: 1, ease: "backOut" }}
+                exit={{ y: -50, opacity: 0, filter: "blur(10px)" }}
+                ref={optRef}
               >
-                <IoMdLink />
-                Link
-              </a>
-              <p className="text-black dark:text-white">
-                Created At: <strong>{details.date}</strong>
-              </p>
-              <div className="flex flex-row gap-4">
-                {details.tags.map((tag, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-center max-w-[110px] bg-transparent px-2 rounded-2xl text-black border-1 dark:text-white font-primary text-lg font-bold border-gray-700 group"
-                  >
-                    <p className="truncate text-gray-300">
-                      <span className="text-blackOrange">#</span>
-                      {tag}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                <h1 className="text-lg font-semibold text-black dark:text-white">
+                  {details.title}
+                </h1>
+                <p className="text-sm text-black dark:text-white">
+                  {details.description}
+                </p>
+                <a
+                  href={details.link}
+                  className="w-15 text-blue-600 flex flex-row items-center gap-2 text-lg dark:text-blue-500 font-semibold"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <IoMdLink />
+                  Link
+                </a>
+                <p className="text-black dark:text-white">
+                  Created At: <strong>{details.date}</strong>
+                </p>
+                <div className="flex flex-row gap-4">
+                  {details.tags.map((tag, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-center max-w-[110px] bg-transparent px-2 rounded-2xl text-black border-1 dark:text-white font-primary text-lg font-bold border-gray-700 group"
+                    >
+                      <p className="truncate text-gray-300">
+                        <span className="text-blackOrange">#</span>
+                        {tag}
+                      </p>
+                    </div>
+                  ))}
+                </div>
 
-              <div className="text-black dark:text-white  cursor-pointer">
-                {showOpt ? (
-                  <Options
-                    setShowOpt={setShowOpt}
-                    setShowDetails={setShowDetails}
-                    handleDelete={handleDelete}
-                  />
-                ) : null}
-                {!showOpt && (
+                <div className="text-black dark:text-white  cursor-pointer">
+                  {showOpt ? (
+                    <motion.div
+                      className="absolute  top-1 left-25"
+                      initial={{ y: -50, opacity: 0, filter: "blur(10px)" }}
+                      animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                      transition={{ duration: 0.4 }}
+                      exit={{ y: -50, opacity: 0, filter: "blur(10px)" }}
+                    >
+                      <Options
+                        setShowOpt={setShowOpt}
+                        setShowDetails={setShowDetails}
+                        handleDelete={handleDelete}
+                      />
+                    </motion.div>
+                  ) : null}
+                  {!showOpt && (
+                    <div
+                      className="absolute top-1 right-1 dark:text-white"
+                      onClick={() => setShowOpt(!showOpt)}
+                    >
+                      <BsThreeDotsVertical />
+                    </div>
+                  )}
+
                   <div
-                    className="absolute top-1 right-1 dark:text-white"
-                    onClick={() => setShowOpt(!showOpt)}
+                    className="absolute top-10 right-1 dark:text-white text-lg"
+                    onClick={() => setShowAiChat(!showAiChat)}
                   >
-                    <BsThreeDotsVertical />
+                    <RiDvdAiFill />
                   </div>
-                )}
+                </div>
+              </motion.div>
+            )}
+            {showAiChat && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-primaryBlack/50">
+                <div className="relative ">
+                  <Ai videoLink={details.link} setShowAiChat={setShowAiChat} />
+                </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            )}
+          </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );
@@ -194,12 +216,12 @@ const Options = ({
   handleDelete,
 }: OptionsProps) => {
   return (
-    <div className="absolute  top-1 left-25 w-40 h-28  bg-gray-300 dark:bg-primaryBlack pt-5  rounded-md border-1 border-blackOrange/70">
+    <div className="w-40 h-28  bg-gray-300 dark:bg-primaryBlack pt-5  rounded-md border-1 border-blackOrange/70">
       <div className="absolute right-1 top-1" onClick={() => setShowOpt(false)}>
         <BsThreeDotsVertical />
       </div>
       <div
-        className="p-2 pl-5 flex flex-row gap-2 justify-start items-center  cursor-pointer font-primary hover:bg-yellow-600/30"
+        className="p-2 pl-5 flex flex-row gap-2 justify-start items-center  cursor-pointer font-primary hover:bg-yellow-500/40"
         onClick={() => {
           setShowDetails(false);
           setShowOpt(false);

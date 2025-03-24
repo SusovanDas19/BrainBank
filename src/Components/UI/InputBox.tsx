@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { LuEyeClosed } from "react-icons/lu";
 import { IoEyeOffOutline } from "react-icons/io5";
 
-type InputBoxTypes = {
-    variant: "auth" | "atForm",
-    placeholder: string,
-    type: string,
-    name: string,
-    onClick?: () => void,
-   
-}
+export type InputBoxTypes = {
+  variant: "auth" | "atForm";
+  placeholder: string;
+  type: string;
+  name: string;
+  onClick?: () => void;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+};
+
 
 const inpVariantStyle = {
     auth: "w-[280px]  px-4 py-3 ",
@@ -32,6 +35,9 @@ export const InputBox = (props: InputBoxTypes) => {
                 name={props.name}
                 placeholder={props.placeholder}
                 type={props.type === 'password' && showPassword ? 'text' : props.type}
+                value={props.value}
+                onChange={props.onChange}
+                onKeyDown={props.onKeyDown}
             />
             {props.type === 'password' && (
                 <button

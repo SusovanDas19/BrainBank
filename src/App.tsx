@@ -1,5 +1,5 @@
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import { RecoilRoot, useRecoilValue } from "recoil";
+import { RecoilRoot } from "recoil";
 import { Navbar } from "./Components/Navbars";
 import { SideBar } from "./Components/SideBar";
 import { Youtube } from "./Components/Tabs/Youtube";
@@ -9,12 +9,13 @@ import { Recent } from "./Components/Tabs/Recent";
 import "./App.css";
 import { ToastProvider } from "./Components/UI/ToastProvider";
 import { Header } from "./Components/Header";
-import { showFormState } from "./store/atoms/formAtom";
 import { Twitter } from "./Components/Tabs/Twitter";
 import { Linkedin } from "./Components/Tabs/Linkedin";
 import { Notion } from "./Components/Tabs/Notion";
 import { Github } from "./Components/Tabs/Github";
 import { Aichat } from "./Components/Tabs/Aichat";
+import { Random } from "./Components/Tabs/Random";
+import { Notes } from "./Components/Tabs/Notes";
 
 function App() {
   const token = localStorage.getItem("tokenBB");
@@ -34,6 +35,8 @@ function App() {
               <Route path="/Notion" element={token ? <Notion /> : <Auth />} />
               <Route path="/Github" element={token ? <Github /> : <Auth />} />
               <Route path="/Aichat" element={token ? <Aichat /> : <Auth />} />
+              <Route path="/Random" element={token ? <Random /> : <Auth />} />
+              <Route path="/Notes" element={token ? <Notes /> : <Auth />} />
             </Route>
           </Routes>
         </BrowserRouter>
@@ -44,7 +47,6 @@ function App() {
 
 function Layout() {
   const token = localStorage.getItem("tokenBB");
-  const showForm = useRecoilValue(showFormState);
 
   return (
     <div className="h-full w-full flex flex-col">
@@ -59,7 +61,7 @@ function Layout() {
               <SideBar />
             </div>
             <div className="flex-1 h-full overflow-y-auto transition-all duration-300">
-              <div className={`${showForm ? "filter blur-sm" : ""}`}>
+              <div >
                 <Outlet />
               </div>
             </div>

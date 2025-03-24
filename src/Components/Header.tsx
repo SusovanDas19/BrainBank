@@ -31,10 +31,10 @@ export const Header = () => {
             transition={{duration: 1, type: 'spring'}}
             exit={{x:550,y:-200,opacity: 0, scale: 0.1, filter: "blur(10px)"}}
           >
-            {/* Optionally, you can add a semi-transparent background */}
-            <div className="absolute inset-0 bg-black opacity-50" onClick={() => setShowForm(false)}></div>
             
-            {/* Centered Form */}
+            <div className=" absolute inset-0 bg-gray-700/70 dark:bg-primaryBlack/70 filter blur-lg" onClick={() => setShowForm(false)}></div>
+            
+            
             <motion.div
               className="relative p-8 rounded-xl border border-gray-700 bg-white dark:bg-primaryBlack"
               initial={{ scale: 0.1, opacity: 0, filter: "blur(10px)" }}
