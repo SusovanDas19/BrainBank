@@ -1,13 +1,27 @@
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from "react";
 import axios from "axios";
 import { MdOutlineCancelPresentation } from "react-icons/md";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { InputBox } from "./UI/InputBox";
 import { FaCircleArrowUp } from "react-icons/fa6";
 import { GrYoutube } from "react-icons/gr";
 import { Typewrite } from "./UI/Typewrite";
 import { TiDeleteOutline } from "react-icons/ti";
 import { IoCopyOutline } from "react-icons/io5";
+import { BsTwitterX } from "react-icons/bs";
+import { useRecoilValue } from "recoil";
+import { currSidebar } from "../store/atoms/currSideTab";
+import {
+  MdSentimentVerySatisfied,
+  MdOutlineSentimentNeutral,
+  MdOutlineSentimentDissatisfied,
+} from "react-icons/md";
+import { BiAngry } from "react-icons/bi";
+import { Button } from "./UI/Button";
+import { LiaSearchSolid } from "react-icons/lia";
+
+
+const token = localStorage.getItem("tokenBB");
 
 interface ChatMessage {
   id: string;
@@ -16,84 +30,12 @@ interface ChatMessage {
 }
 
 interface AiProps {
-  videoLink: string;
+  link: string;
   setShowAiChat: (value: boolean) => void;
 }
 
-export const Ai = ({ setShowAiChat, videoLink }: AiProps) => {
-  const [message, setMessage] = useState("");
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  const chatHistoryRef = useRef<HTMLDivElement>(null);
-  const [waitForResponse, setWaitForResponse] = useState<boolean>(false);
-
-  const generateId = () => Date.now().toString();
-
-  const handleSend = async () => {
-    if (!message.trim()) {
-      alert("Please enter a prompt before sending.");
-      return;
-    } else if (message.length > 150) {
-      alert("Your prompt is too large");
-      return;
-    }
-    const prompt = message;
-    const id = generateId();
-
-    // Immediately add the new prompt with an empty response
-    setChatHistory((prev) => [...prev, { id, prompt, response: "" }]);
-    setMessage("");
-    setWaitForResponse(true);
-
-    const token = localStorage.getItem("tokenBB");
-    try {
-      const res = await axios.post(
-        "http://localhost:3000/v1/Ai/youtube",
-        { videoLink, sendMessage: prompt },
-        { headers: { Authorization: token || "" } }
-      );
-      const responseText = res.data.response as string;
-
-      // Update the chat entry with the received response using its unique id
-      setChatHistory((prev) =>
-        prev.map((chat) =>
-          chat.id === id ? { ...chat, response: responseText } : chat
-        )
-      );
-      setWaitForResponse(false)
-    } catch (error: any) {
-      console.error("Error sending request:", error);
-      setChatHistory((prev) =>
-        prev.map((chat) =>
-          chat.id === id
-            ? {
-                ...chat,
-                response: "Error generating answer. Please try again.",
-              }
-            : chat
-        )
-      );
-      setWaitForResponse(false)
-    }
-  };
-
-  // Handle enter key to send prompt
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && message.length > 0 && !waitForResponse) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  
-  const handleDelete = useCallback((id: string) => {
-    setChatHistory((prev) => prev.filter((chat) => chat.id !== id));
-  }, []);
-
-  useEffect(() => {
-    if (chatHistoryRef.current) {
-      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
-    }
-  }, [chatHistory]);
+export const Ai = ({ setShowAiChat, link }: AiProps) => {
+  const currTab = useRecoilValue(currSidebar);
 
   return (
     <motion.div
@@ -116,19 +58,110 @@ export const Ai = ({ setShowAiChat, videoLink }: AiProps) => {
         <div className="font-primary text-black dark:text-white font-medium text-xl mt-2 ml-5 mr-20 border-b pb-2 border-gray-700/70 flex items-center">
           Exploring
           <a
-            href={videoLink}
+            href={link}
             target="_blank"
             rel="noopener noreferrer"
             className="font-bold ml-2 mr-2 flex items-center gap-1"
           >
-            <GrYoutube className="text-red-600/70 hover:text-red-600" />
+            {currTab === "Youtube" ? (
+              <GrYoutube className="text-red-600/70 hover:text-red-600 cursor-pointer" />
+            ) : (
+              <BsTwitterX className="text-gray-500 hover:text-gray-700 dark:hover:text-white cursor-pointer" />
+            )}
           </a>
-          Video
+          {currTab === "Youtube" ? "Video" : "Tweet"}
         </div>
       </div>
 
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {currTab === "Youtube" ? (
+          <YoutubeExplore link={link} />
+        ) : (
+          <TweetSentiment link={link} />
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+const YoutubeExplore = ({ link }: { link: string }) => {
+  const chatHistoryRef = useRef<HTMLDivElement>(null);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [message, setMessage] = useState("");
+
+  const [waitForResponse, setWaitForResponse] = useState<boolean>(false);
+
+  const generateId = () => Date.now().toString();
+
+  useEffect(() => {
+    if (chatHistoryRef.current) {
+      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
+
+  const handleSend = async () => {
+    if (!message.trim()) {
+      alert("Please enter a prompt before sending.");
+      return;
+    } else if (message.length > 150) {
+      alert("Your prompt is too large");
+      return;
+    }
+    const prompt = message;
+    const id = generateId();
+
+    // Immediately add the new prompt with an empty response
+    setChatHistory((prev) => [...prev, { id, prompt, response: "" }]);
+    setMessage("");
+    setWaitForResponse(true);
+
+    try {
+      const res = await axios.post(
+        `http://localhost:3000/v1/Ai/Youtube`,
+        { link, sendMessage: prompt },
+        { headers: { Authorization: token || "" } }
+      );
+      const responseText = res.data.response as string;
+
+      // Update the chat entry with the received response using its unique id
+      setChatHistory((prev) =>
+        prev.map((chat) =>
+          chat.id === id ? { ...chat, response: responseText } : chat
+        )
+      );
+      setWaitForResponse(false);
+    } catch (error: any) {
+      console.error("Error sending request:", error);
+      setChatHistory((prev) =>
+        prev.map((chat) =>
+          chat.id === id
+            ? {
+                ...chat,
+                response: "Error generating answer. Please try again.",
+              }
+            : chat
+        )
+      );
+      setWaitForResponse(false);
+    }
+  };
+
+  // Handle enter key to send prompt
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && message.length > 0 && !waitForResponse) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleDelete = useCallback((id: string) => {
+    setChatHistory((prev) => prev.filter((chat) => chat.id !== id));
+  }, []);
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
       {/* Chat  */}
-      <div ref={chatHistoryRef} className="flex-grow p-4 overflow-y-auto">
+      <div ref={chatHistoryRef} className="flex-1 overflow-y-auto p-4">
         {chatHistory.map((chat) => (
           <div
             key={chat.id}
@@ -150,7 +183,10 @@ export const Ai = ({ setShowAiChat, videoLink }: AiProps) => {
                   <div className="flex flex-row gap-4 mt-2 opacity-0 group-hover:opacity-100 justify-start items-center">
                     {/* Delete Button with Label */}
                     <div className="relative">
-                      <button className="peer cursor-pointer" onClick={() => handleDelete(chat.id)}>
+                      <button
+                        className="peer cursor-pointer"
+                        onClick={() => handleDelete(chat.id)}
+                      >
                         <TiDeleteOutline className=" text-2xl group  font-bold hover:text-red-600 text-gray-500" />
                       </button>
                       <span className="absolute top-6 -left-1  mt-1 text-xs dark:text-white opacity-0 peer-hover:opacity-100 bg-gray-500 p-1 font-semibold rounded">
@@ -159,7 +195,8 @@ export const Ai = ({ setShowAiChat, videoLink }: AiProps) => {
                     </div>
                     {/* Copy Button with Label */}
                     <div className="relative">
-                      <button className="peer cursor-pointer"
+                      <button
+                        className="peer cursor-pointer"
                         onClick={() =>
                           navigator.clipboard.writeText(chat.response)
                         }
@@ -179,7 +216,7 @@ export const Ai = ({ setShowAiChat, videoLink }: AiProps) => {
       </div>
 
       {/* Input Area*/}
-      <div className="flex-none p-4  border-gray-400 font-primary">
+      <div className=" flex-none sticky bottom-0 bg-gray-200 dark:bg-primaryBlack font-primary p-4">
         <div className="relative">
           <InputBox
             type="text"
@@ -190,7 +227,7 @@ export const Ai = ({ setShowAiChat, videoLink }: AiProps) => {
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          {(message && !waitForResponse) && (
+          {message && !waitForResponse && (
             <div
               className="absolute top-2 right-40 text-2xl dark:text-white cursor-pointer"
               onClick={handleSend}
@@ -200,6 +237,91 @@ export const Ai = ({ setShowAiChat, videoLink }: AiProps) => {
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
+  );
+};
+
+const TweetSentiment = ({ link }: { link: string }) => {
+  const [showSenAna, setShowSenAna] = useState<boolean>(true);
+  const [tweetData, setTweetData] = useState<string>("");
+  const [sentiment, setSentiment] = useState<string>("");
+  const [generating, setGenerating] = useState<string>("");
+  const [done, setDone] = useState<boolean>(false);
+
+  const handelSentimentAnalysis = async () => {
+    setShowSenAna(false);
+    setDone(false);
+    setGenerating("generating");
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/v1/Ai/Twitter",
+        { link, tweetData: tweetData },
+        { headers: { Authorization: token || "" } }
+      );
+
+      if (tweetData.length == 0) {
+        setTweetData(response.data.tweetData);
+      }
+
+      setSentiment(response.data.sentimentText);
+      setGenerating("done");
+    } catch (e) {}
+  };
+  return (
+    <div className="flex flex-col h-full font-primary px-6 items-center justify-center">
+      <AnimatePresence>
+        {showSenAna && (
+          <>
+            <h2 className="text-2xl text-white mt-10 text-center">
+              Welcome! Choose how you think the tweet feels
+            </h2>
+            <motion.div
+              className="h-60 w-55 mt-10 flex flex-col justify-between items-center bg-gray-400/30
+                   dark:bg-gray-600/20 border border-gray-500 rounded-2xl p-6 cursor-pointer shadow-md shadow-gray-500 dark:shadow-gray-700 hover:bg-transparent"
+              initial={{ scale: 0.5, opacity: 0, filter: "blur(10px)" }}
+              animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+              exit={{ scale: 0.1, opacity: 0, filter: "blur(10px)" }}
+              onClick={handelSentimentAnalysis}
+            >
+              <h1 className="text-2xl dark:text-gray-300 font-semibold text-center">
+                Sentiment Analysis
+              </h1>
+
+              <div className="grid grid-cols-2 gap-4 mt-2 justify-items-center">
+                <MdSentimentVerySatisfied className="text-4xl text-green-500 hover:scale-110" />
+                <MdOutlineSentimentNeutral className="text-4xl text-blue-500 hover:scale-110" />
+                <MdOutlineSentimentDissatisfied className="text-4xl text-yellow-500 hover:scale-110" />
+                <BiAngry className="text-4xl text-red-500 hover:scale-110" />
+              </div>
+
+              <p className="mt-4 dark:text-gray-400 text-center">
+                Tap to analyze the tweet’s mood.
+              </p>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {generating === "generating" && (
+          <p className="text-white text-2xl self-center mt-4 font-Ai">Generating…</p>
+        )}
+
+        {generating === "done" && (
+          <div className="flex-1 w-full overflow-y-auto p-4 pt-10 rounded-md ">
+            <Typewrite data={sentiment} setDone={setDone} />
+
+            {/* optional feature , analyze again */}
+            {/* {done && (
+              <div className="mt-5 mb-5 flex justify-center group">
+                <Button variant="secondary" size="md" text="Analyze Again" onClick={handelSentimentAnalysis} endIcon={<LiaSearchSolid className="text-2xl text-blackOrange group-hover:text-white"/>}/>
+              </div>
+            )} */}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
