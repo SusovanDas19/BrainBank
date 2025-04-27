@@ -2,6 +2,8 @@ import Router from "express";
 import { Request, Response } from "express";
 import { userAuth } from "../middlewares/userAuth";
 import { newContentModel, UserModel } from "../Database/db";
+import mongoose from "mongoose";
+
 const dataRouter = Router();
 
 dataRouter.post("/add", userAuth, async (req: Request, res: Response): Promise<void> => {
@@ -41,12 +43,17 @@ dataRouter.post("/add", userAuth, async (req: Request, res: Response): Promise<v
 dataRouter.get("/fetch", userAuth, async (req:Request, res:Response): Promise<void> =>{
   const userId: string = req.userId || "";
   const contentType: string = req.query.type as string || "";
+  const latestId: string = req.query.latestId as string || "";
 
   try{
-    const content = await newContentModel.find({
-      type: contentType,
-      userId: userId
-    }).populate("userId", "username")
+
+    const query: any = {type: contentType, userId: userId};
+
+    if(latestId){
+      query._id = { $gt: new mongoose.Types.ObjectId(latestId) };
+    }
+
+    const content = await newContentModel.find(query).sort({ _id: -1 })
 
     if(content){
       res.status(201).json({

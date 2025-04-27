@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const userAuth_1 = require("../middlewares/userAuth");
 const db_1 = require("../Database/db");
+const mongoose_1 = __importDefault(require("mongoose"));
 const dataRouter = (0, express_1.default)();
 dataRouter.post("/add", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -46,11 +47,13 @@ dataRouter.post("/add", userAuth_1.userAuth, (req, res) => __awaiter(void 0, voi
 dataRouter.get("/fetch", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.userId || "";
     const contentType = req.query.type || "";
+    const latestId = req.query.latestId || "";
     try {
-        const content = yield db_1.newContentModel.find({
-            type: contentType,
-            userId: userId
-        }).populate("userId", "username");
+        const query = { type: contentType, userId: userId };
+        if (latestId) {
+            query._id = { $gt: new mongoose_1.default.Types.ObjectId(latestId) };
+        }
+        const content = yield db_1.newContentModel.find(query).sort({ _id: -1 });
         if (content) {
             res.status(201).json({
                 message: "All content fetched.",
