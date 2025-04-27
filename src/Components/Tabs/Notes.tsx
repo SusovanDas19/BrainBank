@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { selectOpt } from "../../store/atoms/formAtom";
@@ -12,29 +12,43 @@ export const Notes = () => {
   const setCurrTab = useSetRecoilState(currSidebar);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
-  const [allData, setAllData] = useState([]);
+  const [allData, setAllData] = useState<ResponseStr[]>([]);
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
+  const fetchCalled = useRef(false);
 
   useEffect(() => {
     setCurrTab("Notes");
     setSelectedOption("Notes");
 
+    if (fetchCalled.current) {
+      return;
+    }
+    fetchCalled.current = true;
+
     const getData = async () => {
       try {
         const token = localStorage.getItem("tokenBB");
+        const latestId = allData[0]?._id;
+        const url =
+          `http://localhost:3000/v1/content/fetch?type=Notes` +
+          (latestId ? `&latestId=${encodeURIComponent(latestId)}` : "");
 
-        const response = await axios.get(
-          "http://localhost:3000/v1/content/fetch?type=Notes",
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: token,
+          },
+        });
 
         if (response.status === 201) {
-          setAllData(response.data.AllContent);
+          const newContent = response.data.AllContent;
+          if (latestId) {
+            setAllData((prev) =>
+              newContent.length ? [...newContent, ...prev] : prev
+            );
+          } else {
+            setAllData(response.data.AllContent);
+          }
         }
       } catch (e) {
         addToast({
@@ -42,19 +56,22 @@ export const Notes = () => {
           size: "md",
           message: "Content fetched fail",
         });
+      } finally {
+        setLoading(false);
+        setCallBackend(false);
       }
-      setLoading(false);
-      setCallBackend(false);
     };
 
-    getData();
+    getData().finally(() => {
+      fetchCalled.current = false;
+    });
   }, [isCallBackend]);
 
-  const removeContent = (id: string)=>{
-    setAllData((prevData)=>
-      prevData.filter((data: ResponseStr)=> data._id !== id)
-    )
-  }
+  const removeContent = (id: string) => {
+    setAllData((prevData) =>
+      prevData.filter((data: ResponseStr) => data._id !== id)
+    );
+  };
 
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-primaryBlack">

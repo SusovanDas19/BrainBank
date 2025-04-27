@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToast } from "../UI/ToastProvider";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
@@ -20,28 +20,46 @@ export interface ResponseStr {
 
 export const Youtube = () => {
   const setCurrtab = useSetRecoilState(currSidebar);
-  const [videos, setVideos] = useState([]);
+  const [videos, setVideos] = useState<ResponseStr[]>([]);
   const { addToast } = useToast();
   const setSelectedOption = useSetRecoilState(selectOpt);
-  const [isCallBackend,setCallBackend] = useRecoilState(callBackend)
+  const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
   const [loading, setLoading] = useState(true);
+  const fetchCalled = useRef(false);
+
+
   useEffect(() => {
     setCurrtab("Youtube");
     setSelectedOption("Youtube");
 
+    if (fetchCalled.current) {
+      return;
+    }
+    fetchCalled.current = true;
+
     const getAllVideos = async () => {
       try {
         const token = localStorage.getItem("tokenBB");
-        const response = await axios.get(
-          "http://localhost:3000/v1/content/fetch?type=Youtube",
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
+
+        const latestId = videos[0]?._id;
+        const url =
+          `http://localhost:3000/v1/content/fetch?type=Youtube` +
+          (latestId ? `&latestId=${encodeURIComponent(latestId)}` : "");
+
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: token,
+          },
+        });
         if (response.status === 201) {
-          setVideos(response.data.AllContent);
+          const newContent = response.data.AllContent;
+          if (latestId) {
+            setVideos((prev) =>
+              newContent.length ? [...newContent, ...prev] : prev
+            );
+          } else {
+            setVideos(response.data.AllContent);
+          }
         }
       } catch (e) {
         addToast({
@@ -49,22 +67,28 @@ export const Youtube = () => {
           size: "md",
           message: "Content fetched fail",
         });
+      }finally{
+        setLoading(false);
+        setCallBackend(false);
       }
-      setLoading(false);
-      setCallBackend(false);
+      
     };
-    getAllVideos();
 
-    const timer = setTimeout(()=>{
+    getAllVideos().finally(() => {
+      fetchCalled.current = false;
+    });
+
+    const timer = setTimeout(() => {
       addToast({
         type: "progress",
         size: "md",
-        message: "Embedding Youtube videos may take a moment..."
-      })
-    }, 3000)
-  
-    return ()=>{clearTimeout(timer)}
+        message: "Embedding Youtube videos may take a moment...",
+      });
+    }, 3000);
 
+    return () => {
+      clearTimeout(timer);
+    };
   }, [isCallBackend]);
 
   const removeVideo = (id: string) => {
@@ -74,28 +98,28 @@ export const Youtube = () => {
   };
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-primaryBlack">
-       {loading ? ( 
-      <div className="w-full h-full flex items-center justify-center">
-        <h1 className="text-white text-3xl">Fetching...</h1>
-      </div>
-    ) : videos.length > 0 ? (
-      <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10">
-        <div className="grid grid-cols-4 gap-10 w-full justify-center items-center">
-          {videos.map((video : ResponseStr) => (
-            <Card
-              key={video._id}
-              preview={<YouTubeEmbed videoUrl={video.link} />}
-              details={video}
-              removeContent={removeVideo}
-            />
-          ))}
+      {loading ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <h1 className="text-white text-3xl">Fetching...</h1>
         </div>
-      </div>
-    ) : (
-      <div className="w-full h-full text-white text-center mt-20 text-9xl">
-        <h1>No content</h1>
-      </div>
-    )}
+      ) : videos.length > 0 ? (
+        <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10">
+          <div className="grid grid-cols-4 gap-10 w-full justify-center items-center">
+            {videos.map((video: ResponseStr) => (
+              <Card
+                key={video._id}
+                preview={<YouTubeEmbed videoUrl={video.link} />}
+                details={video}
+                removeContent={removeVideo}
+              />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="w-full h-full text-white text-center mt-20 text-9xl">
+          <h1>No content</h1>
+        </div>
+      )}
     </div>
   );
 };

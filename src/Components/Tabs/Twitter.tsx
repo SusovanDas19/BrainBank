@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToast } from "../UI/ToastProvider";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
@@ -19,23 +19,35 @@ export interface TweetResponse {
 
 export const Twitter = () => {
   const setCurrtab = useSetRecoilState(currSidebar);
-  const [tweets, setTweets] = useState([]);
+  const [tweets, setTweets] = useState<ResponseStr[]>([]);
   const { addToast } = useToast();
   const isCallBackend = useRecoilValue(callBackend);
   const setCallBackend = useSetRecoilState(callBackend);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [loading, setLoading] = useState(true);
   const theme: string = localStorage.getItem("theme") || "";
+  const fetchCalled = useRef(false);
 
   useEffect(() => {
     setCurrtab("Twitter");
     setSelectedOption("Twitter");
 
+    if (fetchCalled.current) {
+      return;
+    }
+    fetchCalled.current = true;
+
     const getAllTweets = async () => {
       try {
         const token = localStorage.getItem("tokenBB");
-        const response = await axios.get(
-          "http://localhost:3000/v1/content/fetch?type=Twitter",
+        
+        const latestId = tweets[0]?._id;
+        const url =
+          `http://localhost:3000/v1/content/fetch?type=Twitter` +
+          (latestId ? `&latestId=${encodeURIComponent(latestId)}` : "");
+
+
+        const response = await axios.get(url,
           {
             headers: {
               Authorization: token,
@@ -43,7 +55,14 @@ export const Twitter = () => {
           }
         );
         if (response.status === 201) {
-          setTweets(response.data.AllContent);
+          const newContent = response.data.AllContent;
+          if (latestId) {
+            setTweets((prev) =>
+              newContent.length ? [...newContent, ...prev] : prev
+            );
+          } else {
+            setTweets(response.data.AllContent);
+          }        
         }
       } catch (e) {
         addToast({
@@ -51,13 +70,16 @@ export const Twitter = () => {
           size: "md",
           message: "Failed to fetch tweets",
         });
+      }finally{
+        setLoading(false);
+        setCallBackend(false);
       }
-      setLoading(false);
-      setCallBackend(false);
     };
     
-    getAllTweets();
-
+    getAllTweets().finally(() => {
+      fetchCalled.current = false;
+    });
+    
     const timer = setTimeout(()=>{
         addToast({
           type: "progress",

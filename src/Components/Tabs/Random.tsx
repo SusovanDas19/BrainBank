@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { selectOpt } from "../../store/atoms/formAtom";
@@ -12,29 +12,44 @@ export const Random = () => {
   const setCurrTab = useSetRecoilState(currSidebar);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
-  const [allData, setAllData] = useState([]);
+  const [allData, setAllData] = useState<ResponseStr[]>([]);
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
+  const fetchCalled = useRef(false);
 
   useEffect(() => {
     setCurrTab("Random");
     setSelectedOption("Random");
 
+    if (fetchCalled.current) {
+      return;
+    }
+    fetchCalled.current = true;
+
     const getData = async () => {
       try {
         const token = localStorage.getItem("tokenBB");
 
-        const response = await axios.get(
-          "http://localhost:3000/v1/content/fetch?type=Random",
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
+        const latestId = allData[0]?._id;
+        const url =
+          `http://localhost:3000/v1/content/fetch?type=Random` +
+          (latestId ? `&latestId=${encodeURIComponent(latestId)}` : "");
+
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: token,
+          },
+        });
 
         if (response.status === 201) {
-          setAllData(response.data.AllContent);
+          const newContent = response.data.AllContent;
+          if (latestId) {
+            setAllData((prev) =>
+              newContent.length ? [...newContent, ...prev] : prev
+            );
+          } else {
+            setAllData(response.data.AllContent);
+          }
         }
       } catch (e) {
         addToast({
@@ -43,18 +58,23 @@ export const Random = () => {
           message: "Content fetched fail",
         });
       }
-      setLoading(false);
-      setCallBackend(false);
+      finally {
+        setLoading(false);
+        setCallBackend(false);
+      }
     };
 
-    getData();
+    getData().finally(() => {
+      fetchCalled.current = false;
+    });
+    
   }, [isCallBackend]);
 
-  const removeContent = (id: string)=>{
-    setAllData((prevData)=>
-      prevData.filter((data: ResponseStr)=> data._id !== id)
-    )
-  }
+  const removeContent = (id: string) => {
+    setAllData((prevData) =>
+      prevData.filter((data: ResponseStr) => data._id !== id)
+    );
+  };
 
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-primaryBlack">

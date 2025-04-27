@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { selectOpt } from "../../store/atoms/formAtom";
@@ -12,29 +12,45 @@ export const Github = () => {
   const setCurrTab = useSetRecoilState(currSidebar);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
-  const [allData, setAllData] = useState([]);
+  const [allData, setAllData] = useState<ResponseStr[]>([]);
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
+
+  const fetchCalled = useRef(false);
 
   useEffect(() => {
     setCurrTab("Github");
     setSelectedOption("Github");
 
+    if (fetchCalled.current) {
+      return;
+    }
+    fetchCalled.current = true;
+
     const getData = async () => {
       try {
         const token = localStorage.getItem("tokenBB");
 
-        const response = await axios.get(
-          "http://localhost:3000/v1/content/fetch?type=Github",
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
+        const latestId = allData[0]?._id;
+        const url =
+          `http://localhost:3000/v1/content/fetch?type=Github` +
+          (latestId ? `&latestId=${encodeURIComponent(latestId)}` : "");
+
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: token,
+          },
+        });
 
         if (response.status === 201) {
-          setAllData(response.data.AllContent);
+          const newContent = response.data.AllContent;
+          if (latestId) {
+            setAllData((prev) =>
+              newContent.length ? [...newContent, ...prev] : prev
+            );
+          } else {
+            setAllData(response.data.AllContent);
+          }
         }
       } catch (e) {
         addToast({
@@ -42,19 +58,22 @@ export const Github = () => {
           size: "md",
           message: "Content fetched fail",
         });
+      } finally {
+        setLoading(false);
+        setCallBackend(false);
       }
-      setLoading(false);
-      setCallBackend(false);
     };
 
-    getData();
+    getData().finally(() => {
+      fetchCalled.current = false;
+    });
   }, [isCallBackend]);
 
-  const removeContent = (id: string)=>{
-    setAllData((prevData)=>
-      prevData.filter((data: ResponseStr)=> data._id !== id)
-    )
-  }
+  const removeContent = (id: string) => {
+    setAllData((prevData) =>
+      prevData.filter((data: ResponseStr) => data._id !== id)
+    );
+  };
 
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-primaryBlack">
@@ -66,12 +85,8 @@ export const Github = () => {
         <div className="flex-1 overflow-y-auto pt-46 p-4 top-30 pb-10 ml-10 mr-10">
           <div className="grid grid-cols-4 gap-10 w-full justify-center items-center">
             {allData.map((data: ResponseStr) => (
-              <div>
-                <Container
-                  key={data._id}
-                  details={data}
-                  removeContent={removeContent}
-                />
+              <div key={data._id}>
+                <Container details={data} removeContent={removeContent} />
               </div>
             ))}
           </div>
