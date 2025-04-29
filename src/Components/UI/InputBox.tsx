@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { RefObject, useState } from 'react';
 import { LuEyeClosed } from "react-icons/lu";
 import { IoEyeOffOutline } from "react-icons/io5";
 
@@ -11,6 +11,8 @@ export type InputBoxTypes = {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  Icon?: boolean
+  inputRef?:  RefObject<HTMLInputElement>;
 };
 
 
@@ -31,13 +33,14 @@ export const InputBox = (props: InputBoxTypes) => {
     return (
         <div className="relative flex items-center justify-center font-">
             <input
-                className={`${inpDefaultStyle} ${inpVariantStyle[props.variant]}`}
+                className={`${inpDefaultStyle} ${inpVariantStyle[props.variant]} ${props.Icon && "pl-10 pr-10 bg-gray-300/40 dark:bg-gray-500/50"}`}
                 name={props.name}
                 placeholder={props.placeholder}
                 type={props.type === 'password' && showPassword ? 'text' : props.type}
                 value={props.value}
                 onChange={props.onChange}
                 onKeyDown={props.onKeyDown}
+                ref={props.inputRef}
             />
             {props.type === 'password' && (
                 <button

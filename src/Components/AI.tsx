@@ -32,10 +32,11 @@ interface ChatMessage {
 interface AiProps {
   link: string;
   setShowAiChat: (value: boolean) => void;
+  type: string
 }
 
-export const Ai = ({ setShowAiChat, link }: AiProps) => {
-  const currTab = useRecoilValue(currSidebar);
+export const Ai = ({ setShowAiChat, link, type }: AiProps) => {
+
 
   return (
     <motion.div
@@ -63,18 +64,18 @@ export const Ai = ({ setShowAiChat, link }: AiProps) => {
             rel="noopener noreferrer"
             className="font-bold ml-2 mr-2 flex items-center gap-1"
           >
-            {currTab === "Youtube" ? (
+            {type === "Youtube" ? (
               <GrYoutube className="text-red-600/70 hover:text-red-600 cursor-pointer" />
             ) : (
               <BsTwitterX className="text-gray-500 hover:text-gray-700 dark:hover:text-white cursor-pointer" />
             )}
           </a>
-          {currTab === "Youtube" ? "Video" : "Tweet"}
+          {type === "Youtube" ? "Video" : "Tweet"}
         </div>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {currTab === "Youtube" ? (
+        {type === "Youtube" ? (
           <YoutubeExplore link={link} />
         ) : (
           <TweetSentiment link={link} />

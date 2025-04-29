@@ -65,7 +65,7 @@ export const Youtube = () => {
         addToast({
           type: "failure",
           size: "md",
-          message: "Content fetched fail",
+          message: "Content fetch failed",
         });
       }finally{
         setLoading(false);
@@ -124,7 +124,7 @@ export const Youtube = () => {
   );
 };
 
-const YouTubeEmbed = ({ videoUrl }: { videoUrl: string }) => {
+export const YouTubeEmbed = ({ videoUrl }: { videoUrl: string }) => {
   // Extract YouTube video ID from the URL
   const getYouTubeEmbedUrl = (url: string) => {
     const videoIdMatch = url.match(

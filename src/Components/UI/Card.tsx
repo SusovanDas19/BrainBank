@@ -27,7 +27,7 @@ export const Card = ({ preview, details, removeContent }: YtContainerProps) => {
   const optRef = useRef<HTMLDivElement>(null);
   const { addToast } = useToast();
   const [showAiChat, setShowAiChat] = useState<boolean>(false);
-  const currTab = useRecoilValue(currSidebar);
+  
 
   useClickOutside(optRef, () => {
     setShowDetails(false);
@@ -183,7 +183,7 @@ export const Card = ({ preview, details, removeContent }: YtContainerProps) => {
                     <BsThreeDotsVertical />
                   </div>
                 )}
-                {currTab != "Linkedin" && (
+                {details.type != "Linkedin" && (
                   <div
                     className="absolute top-10 right-1 dark:text-white text-lg"
                     onClick={() => setShowAiChat(!showAiChat)}
@@ -197,7 +197,7 @@ export const Card = ({ preview, details, removeContent }: YtContainerProps) => {
           {showAiChat && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-primaryBlack/50">
               <div className="relative ">
-                <Ai link={details.link} setShowAiChat={setShowAiChat} />
+                <Ai link={details.link} setShowAiChat={setShowAiChat} type={details.type}/>
               </div>
             </div>
           )}

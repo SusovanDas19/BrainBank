@@ -12,7 +12,7 @@ export const ToastProvider = () => {
   return (
     <>
       {createPortal(
-        <motion.div className="fixed top-0 right-0 p-4 space-y-2 z-70">
+        <motion.div className="fixed top-0 right-0 p-4 space-y-2 z-10000000">
           <AnimatePresence>
             {allToast.map((toast) => (
               <motion.div

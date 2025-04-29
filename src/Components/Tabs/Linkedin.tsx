@@ -131,11 +131,8 @@ const getEmbedUrl = (postUrl: string) => {
     return match ? `https://www.linkedin.com/embed/feed/update/urn:li:${match[1]}:${match[2]}` : "";
 };  
 
-const LinkedInEmbed = ({ postUrl }: { postUrl: string }) => {
-    console.log("Before: "+ postUrl);
+export const LinkedInEmbed = ({ postUrl }: { postUrl: string }) => {
     const embedUrl = getEmbedUrl(postUrl);
-    console.log("After: " + embedUrl);
-  
     return (
       <div className="w-70 h-auto flex justify-center items-center p-4">
         {embedUrl ? (
