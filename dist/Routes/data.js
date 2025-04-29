@@ -22,7 +22,9 @@ dataRouter.post("/add", userAuth_1.userAuth, (req, res) => __awaiter(void 0, voi
         const userId = req.userId || "";
         const { title, description, type, link, tags, date } = req.body;
         if (!title || !description || !type) {
-            res.status(400).json({ error: "Title, description, and type are required." });
+            res
+                .status(400)
+                .json({ error: "Title, description, and type are required." });
             return;
         }
         // Create new content
@@ -57,40 +59,72 @@ dataRouter.get("/fetch", userAuth_1.userAuth, (req, res) => __awaiter(void 0, vo
         if (content) {
             res.status(201).json({
                 message: "All content fetched.",
-                AllContent: content
+                AllContent: content,
             });
         }
         else {
             res.status(400).json({
-                message: "Unable to fetch all content"
+                message: "Unable to fetch all content",
             });
         }
     }
     catch (error) {
         res.status(500).json({
-            message: "Internal server error"
+            message: "Internal server error",
         });
+    }
+}));
+dataRouter.get("/fetch/recent", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.userId;
+    const afterId = req.query.afterId;
+    const query = { userId,
+        // type: { $in: ['Youtube', 'Twitter', 'Linkedin'] }
+    };
+    if (afterId && mongoose_1.default.Types.ObjectId.isValid(afterId)) {
+        query._id = { $gt: new mongoose_1.default.Types.ObjectId(afterId) };
+    }
+    try {
+        const recentPosts = yield db_1.newContentModel
+            .find(query)
+            .sort({ _id: -1 })
+            .limit(15)
+            .lean();
+        if (recentPosts.length > 0) {
+            res.status(200).json({
+                message: "Recent posts fetched successfully",
+                recentPosts: recentPosts,
+            });
+            return;
+        }
+        else {
+            res.status(204).json({ message: "No recent posts found." });
+        }
+    }
+    catch (e) {
+        res.status(500).json({ message: "Internal server error." });
     }
 }));
 dataRouter.delete("/remove", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.userId || "";
     const { contentId } = req.body;
     try {
-        const isValidContentId = yield db_1.newContentModel.findOne({ _id: contentId });
+        const isValidContentId = yield db_1.newContentModel.findOne({
+            _id: contentId,
+        });
         if (!isValidContentId) {
             res.status(400).json({
-                message: "Contetnt does not found"
+                message: "Contetnt does not found",
             });
             return;
         }
         yield db_1.newContentModel.deleteOne({ _id: contentId, userId: userId });
         res.status(200).json({
-            message: "Content removed successfully"
+            message: "Content removed successfully",
         });
     }
     catch (error) {
         res.status(500).json({
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 }));
