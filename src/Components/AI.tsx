@@ -9,16 +9,14 @@ import { Typewrite } from "./UI/Typewrite";
 import { TiDeleteOutline } from "react-icons/ti";
 import { IoCopyOutline } from "react-icons/io5";
 import { BsTwitterX } from "react-icons/bs";
-import { useRecoilValue } from "recoil";
-import { currSidebar } from "../store/atoms/currSideTab";
+
 import {
   MdSentimentVerySatisfied,
   MdOutlineSentimentNeutral,
   MdOutlineSentimentDissatisfied,
 } from "react-icons/md";
 import { BiAngry } from "react-icons/bi";
-import { Button } from "./UI/Button";
-import { LiaSearchSolid } from "react-icons/lia";
+
 
 
 const token = localStorage.getItem("tokenBB");

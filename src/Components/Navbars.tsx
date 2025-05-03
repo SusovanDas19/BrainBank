@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { LogoutMenu } from "./Auth";
+import { Menu } from "./Menu";
 import { Tabs } from "./UI/Tabs";
 import ThemeToggle from "./UI/ThemeToggle";
 import { LuBrainCircuit } from "react-icons/lu";
@@ -16,12 +16,12 @@ import { DropDownMenu } from "./DropeDownMenu";
 import { Button } from "./UI/Button";
 import { motion, AnimatePresence } from "motion/react";
 import useClickOutside from "../customHooks/useClickOutside";
+import { showMenuAtom } from "../store/atoms/menuAtom";
 
 export const Navbar = () => {
   const [open, setOpen] = useRecoilState(dropMenuAtom);
-  const [showLogout, setShowLogout] = useState(false);
+  const [showMenu, setShowLogout] = useRecoilState(showMenuAtom)
   const menuRef = useRef<HTMLDivElement>(null);
-  const logOutRef = useRef<HTMLDivElement>(null);
   const token = localStorage.getItem("tokenBB");
   const navigate = useNavigate();
 
@@ -29,9 +29,7 @@ export const Navbar = () => {
   useClickOutside(menuRef, ()=>{
     setOpen(false);
   })
-  useClickOutside(logOutRef, ()=>{
-    setShowLogout(false);
-  })
+ 
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -75,18 +73,18 @@ export const Navbar = () => {
           {token ? (
             <>
               <button className="h-10 w-10 rounded-full outline cursor-pointer dark:outline-amber-50  flex items-center justify-center">
-                {showLogout ? (
-                  <RxCrossCircled className="text-4xl text-whiteOrange dark:text-blackOrange" />
+                {showMenu ? (
+                  <RxCrossCircled className="text-4xl text-whiteOrange dark:text-blackOrange" onClick={() => setShowLogout(!showMenu)}/>
                 ) : (
                   <IoPersonCircleSharp
                     className="text-4xl text-black dark:text-white"
-                    onClick={() => setShowLogout(!showLogout)}
+                    onClick={() => setShowLogout(!showMenu)}
                   />
                 )}
               </button>
-              <div ref={logOutRef}>
+              <div>
                 <AnimatePresence>
-                  {showLogout ? (
+                  {showMenu ? (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
                       animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -95,8 +93,11 @@ export const Navbar = () => {
                         ease: ["easeIn", "easeOut"],
                       }}
                       exit={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
+                      
                     >
-                      <LogoutMenu handleLogout={handleLogout} />
+                     
+                      <Menu handleLogout={handleLogout}/>
+                      
                     </motion.div>
                   ) : null}
                 </AnimatePresence>

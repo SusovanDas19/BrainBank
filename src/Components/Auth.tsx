@@ -139,19 +139,4 @@ const Signup = () => {
   );
 };
 
-export const LogoutMenu = ({ handleLogout }: { handleLogout: () => void }) => {
-  const username: string = localStorage.getItem("usernameBB") || "";
-  return (
-    
-    <div
-      className="absolute z-50 top-2 right-5 w-50 h-60 flex justify-center items-center gap-5 flex-col bg-white  dark:bg-primaryBlack  rounded-sm rounded-tl-4xl rounded-br-4xl border-2 border-whiteOrange dark:border-blackOrange hover:border-3"
-    >
-      <div className="w-3/4 font-primary text-xl text-white relative flex justify-center items-center">
-        <span className="relative z-10 text-black dark:text-white">Username</span>
-        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-gray-500 to-transparent"></div>
-      </div>
-      <Tabs text={username} size="lg" variant="navTabs"></Tabs>
-      <Button text="Logout" size="md" variant="secondary" onClick={handleLogout} />
-    </div>
-  );
-};
+

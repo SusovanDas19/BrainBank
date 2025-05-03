@@ -11,8 +11,7 @@ import { useToast } from "./ToastProvider";
 import useClickOutside from "../../customHooks/useClickOutside";
 import { RiDvdAiFill } from "react-icons/ri";
 import { Ai } from "../AI";
-import { useRecoilValue } from "recoil";
-import { currSidebar } from "../../store/atoms/currSideTab";
+
 
 interface YtContainerProps {
   preview?: ReactElement;
@@ -33,6 +32,7 @@ export const Card = ({ preview, details, removeContent }: YtContainerProps) => {
     setShowDetails(false);
     setShowOpt(false);
   });
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -195,11 +195,14 @@ export const Card = ({ preview, details, removeContent }: YtContainerProps) => {
             </motion.div>
           )}
           {showAiChat && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-primaryBlack/50">
-              <div className="relative ">
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-primaryBlack/50">
+              <div className="relative">
                 <Ai link={details.link} setShowAiChat={setShowAiChat} type={details.type}/>
               </div>
             </div>
+            // <Portal>
+            //   <Ai link={details.link} setShowAiChat={setShowAiChat} type={details.type}/>
+            // </Portal>
           )}
         </AnimatePresence>
       </motion.div>

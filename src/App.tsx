@@ -16,6 +16,7 @@ import { Github } from "./Components/Tabs/Github";
 import { Aichat } from "./Components/Tabs/Aichat";
 import { Random } from "./Components/Tabs/Random";
 import { Notes } from "./Components/Tabs/Notes";
+import { ShareBrain } from "./Components/Tabs/ShareBrain";
 
 function App() {
   const token = localStorage.getItem("tokenBB");
@@ -25,6 +26,7 @@ function App() {
         <ToastProvider/>
         <BrowserRouter>
           <Routes>
+          
             <Route path="/" element={<Layout />}>
               <Route index element={token ? <Recent /> : <Intro />} />
               <Route path="/auth" element={<Auth />} />
@@ -37,6 +39,7 @@ function App() {
               <Route path="/Aichat" element={token ? <Aichat /> : <Auth />} />
               <Route path="/Random" element={token ? <Random /> : <Auth />} />
               <Route path="/Notes" element={token ? <Notes /> : <Auth />} />
+              <Route path="/share/brain/show/:hash" element={<ShareBrain/>}/>
             </Route>
           </Routes>
         </BrowserRouter>

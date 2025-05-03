@@ -14,7 +14,7 @@ export interface ResponseStr {
   tags: [string];
   title: string;
   date: string;
-  userId: { _id: string; username: string };
+  userId?: { _id: string; username: string };
   _id: string;
 }
 

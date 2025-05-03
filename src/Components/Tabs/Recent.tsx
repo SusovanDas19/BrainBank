@@ -53,6 +53,7 @@ export const Recent = () => {
       });
     }
   };
+  
   const removePost = (id: string) => {
     setPosts((prevPosts) =>
       prevPosts.filter((Post: ResponseStr) => Post._id !== id)
@@ -64,8 +65,8 @@ export const Recent = () => {
   const containerPosts = posts.filter((p) => !embedTypes.includes(p.type));
 
   return (
-    <div className="relative h-full flex justify-center items-center text-black dark:text-white bg-white dark:bg-primaryBlack pb-10">
-      <div className="flex flex-row  items-center gap-30 absolute z-10 top-35 right-90 transform -translate-x-1/2 -translate-y-1/2">
+    <div className="relative min-h-screen flex justify-center items-center text-black dark:text-white bg-white dark:bg-primaryBlack pb-10">
+      <div className="flex flex-row z-1 items-center gap-30 absolute top-35 right-90 transform -translate-x-1/2 -translate-y-1/2">
         <Search />
         {containerPosts.length > 0 && <Button
           variant="secondary"
@@ -75,7 +76,7 @@ export const Recent = () => {
         />}
         
       </div>
-      <div className="flex-1 overflow-y-auto p-4 mb-40 ">
+      <div className="flex-1 overflow-y-auto p-4 mb-40">
         {others && containerPosts.length > 0 ? (
           <div><Others containerPosts={containerPosts} removeContent={removePost} /></div>
           
