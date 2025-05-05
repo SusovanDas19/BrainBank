@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { selectOpt } from "../../store/atoms/formAtom";
 import axios from "axios";
@@ -7,8 +7,9 @@ import { useToast } from "../UI/ToastProvider";
 import { callBackend } from "../../store/atoms/backednCallAtom";
 import { ResponseStr } from "./Youtube";
 import { Container } from "../UI/Container";
+import { NotionSharedSelector } from "../../store/selectors/shareBrainSelector";
 
-export const Notion = () => {
+export const Notion = ({isShare}:{isShare: boolean}) => {
   const setCurrTab = useSetRecoilState(currSidebar);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
@@ -16,11 +17,17 @@ export const Notion = () => {
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
   const fetchCalled = useRef(false);
+  const ShareNotion = useRecoilValue(NotionSharedSelector);
 
   useEffect(() => {
     setCurrTab("Notion");
     setSelectedOption("Notion");
 
+    if(isShare){
+      setAllData(ShareNotion);
+      setLoading(false)
+      return;
+    }
     if (fetchCalled.current) {
       return;
     }
@@ -67,17 +74,6 @@ export const Notion = () => {
       fetchCalled.current = false;
     });
 
-    const timer = setTimeout(() => {
-      addToast({
-        type: "progress",
-        size: "md",
-        message: "Embedding Notion content may take a moment...",
-      });
-    }, 3000);
-
-    return () => {
-      clearTimeout(timer);
-    };
   }, [isCallBackend]);
 
   const removeContent = (id: string) => {
@@ -100,6 +96,7 @@ export const Notion = () => {
                 key={data._id}
                 details={data}
                 removeContent={removeContent}
+                isShare={isShare}
               />
             ))}
           </div>

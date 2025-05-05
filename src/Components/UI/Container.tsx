@@ -10,15 +10,20 @@ import useClickOutside from "../../customHooks/useClickOutside";
 interface Containerprops {
   details: ResponseStr;
   removeContent: (id: string) => void;
+  isShare?: boolean;
 }
-export const Container = ({ details, removeContent }: Containerprops) => {
+export const Container = ({
+  details,
+  removeContent,
+  isShare,
+}: Containerprops) => {
   const { addToast } = useToast();
   const [showDetele, setShowDelete] = useState(false);
   const deleteRef = useRef(null);
 
-  useClickOutside(deleteRef, ()=>{
-    setShowDelete(false)
-  })
+  useClickOutside(deleteRef, () => {
+    setShowDelete(false);
+  });
 
   const handleDelete = async () => {
     const token = localStorage.getItem("tokenBB");
@@ -60,15 +65,43 @@ export const Container = ({ details, removeContent }: Containerprops) => {
   };
 
   return (
-    <div>
+    <div className="relative group w-70">
+      <div
+        className="
+        absolute inset-0 
+        flex items-center justify-center 
+        text-6xl font-bold 
+        text-black/10 dark:text-white/10 
+        opacity-0 group-hover:opacity-100 
+        transition-opacity duration-300 
+        pointer-events-none
+        font-primary
+        z-100
+      "
+      >
+        {details.type}
+      </div>
+
       <motion.div
         key={details._id}
-        className="absolute group top-45  w-70 rounded-md bg-white/5 dark:bg-black/30 backdrop-blur-md border border-blackOrange/50  p-2 shadow-lg z-100 font-primary"
+        className=" relative z-10 
+        rounded-md bg-white/5 dark:bg-black/30 
+        backdrop-blur-md border border-blackOrange/50  
+        p-2 shadow-lg font-primary"
         initial={{ y: -50, opacity: 0, filter: "blur(10px)" }}
         animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
         transition={{ duration: 1, ease: "backOut" }}
         exit={{ y: -50, opacity: 0, filter: "blur(10px)" }}
       >
+        <motion.div
+          className="absolute bg-red-300 inset-0 flex items-center justify-center opacity-0 group-hover:opacity-10 text-6xl font-extrabold text-black dark:text-white pointer-events-none transition-opacity duration-300"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0 }}
+          whileHover={{ opacity: 0.1 }}
+        >
+          {details.type}
+        </motion.div>
+
         <h1 className="text-lg font-semibold text-black dark:text-white">
           {details.title}
         </h1>
@@ -101,22 +134,24 @@ export const Container = ({ details, removeContent }: Containerprops) => {
           ))}
         </div>
         <div>
-          <div
-            className="absolute top-2 right-2 group"
-            onClick={() => setShowDelete(!showDetele)}
-          >
-            <MdDelete className=" text-red-600 text-lg opacity-0 group-hover:opacity-100 cursor-pointer" />
-          </div>
+          {!isShare && (
+            <div
+              className="absolute top-2 right-2 group"
+              onClick={() => setShowDelete(!showDetele)}
+            >
+              <MdDelete className=" text-red-600 text-lg opacity-0 group-hover:opacity-100 cursor-pointer" />
+            </div>
+          )}
 
           <AnimatePresence>
             {showDetele && (
-              <motion.div 
-              className="w-30 h-20 border-1 border-red-800 absolute top-2 right-10 bg-red-950/30 rounded backdrop-blur-3xl text-black dark:text-white text-xl flex justify-center items-start  flex-col"
-              initial={{y:-50, opacity: 0, filter: "blur(10px)"}}
-              animate={{y: 0, opacity: 1, filter: "blur(0px)"}}
-              transition={{duration: 0.3}}
-              exit={{y:-50, opacity: 0, filter: "blur(10px)"}}
-              ref={deleteRef}
+              <motion.div
+                className="w-30 h-20 border-1 border-red-800 absolute top-2 right-10 bg-red-950/30 rounded backdrop-blur-3xl text-black dark:text-white text-xl flex justify-center items-start  flex-col"
+                initial={{ y: -50, opacity: 0, filter: "blur(10px)" }}
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                transition={{ duration: 0.3 }}
+                exit={{ y: -50, opacity: 0, filter: "blur(10px)" }}
+                ref={deleteRef}
               >
                 <div
                   className="w-full hover:bg-red-700/50 p-1 cursor-pointer"

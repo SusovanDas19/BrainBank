@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { selectOpt } from "../../store/atoms/formAtom";
 import axios from "axios";
@@ -7,20 +7,27 @@ import { useToast } from "../UI/ToastProvider";
 import { callBackend } from "../../store/atoms/backednCallAtom";
 import { ResponseStr } from "./Youtube";
 import { Container } from "../UI/Container";
+import { GithubSharedSelector } from "../../store/selectors/shareBrainSelector";
 
-export const Github = () => {
+export const Github = ({isShare}:{isShare: boolean}) => {
   const setCurrTab = useSetRecoilState(currSidebar);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
   const [allData, setAllData] = useState<ResponseStr[]>([]);
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
-
+  const ShareGithub = useRecoilValue(GithubSharedSelector);
   const fetchCalled = useRef(false);
 
   useEffect(() => {
     setCurrTab("Github");
     setSelectedOption("Github");
+
+    if(isShare){
+      setAllData(ShareGithub);
+      setLoading(false);
+      return
+    }
 
     if (fetchCalled.current) {
       return;
@@ -86,7 +93,7 @@ export const Github = () => {
           <div className="grid grid-cols-4 gap-10 w-full justify-center items-center">
             {allData.map((data: ResponseStr) => (
               <div key={data._id}>
-                <Container details={data} removeContent={removeContent} />
+                <Container details={data} removeContent={removeContent} isShare={isShare}/>
               </div>
             ))}
           </div>

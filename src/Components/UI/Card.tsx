@@ -13,13 +13,14 @@ import { RiDvdAiFill } from "react-icons/ri";
 import { Ai } from "../AI";
 
 
-interface YtContainerProps {
+interface CardContainerProps {
   preview?: ReactElement;
   details: ResponseStr;
   removeContent: (id: string) => void;
+  isShare?:boolean
 }
 
-export const Card = ({ preview, details, removeContent }: YtContainerProps) => {
+export const Card = ({ preview, details, removeContent,isShare }: CardContainerProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showOpt, setShowOpt] = useState(false);
@@ -175,7 +176,7 @@ export const Card = ({ preview, details, removeContent }: YtContainerProps) => {
                     />
                   </motion.div>
                 ) : null}
-                {!showOpt && (
+                {!showOpt && !isShare && (
                   <div
                     className="absolute top-1 right-1 dark:text-white"
                     onClick={() => setShowOpt(!showOpt)}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { selectOpt } from "../../store/atoms/formAtom";
 import axios from "axios";
@@ -7,8 +7,9 @@ import { useToast } from "../UI/ToastProvider";
 import { callBackend } from "../../store/atoms/backednCallAtom";
 import { ResponseStr } from "./Youtube";
 import { Container } from "../UI/Container";
+import { NotesSharedSelector } from "../../store/selectors/shareBrainSelector";
 
-export const Notes = () => {
+export const Notes = ({isShare}:{isShare: boolean}) => {
   const setCurrTab = useSetRecoilState(currSidebar);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
@@ -16,10 +17,17 @@ export const Notes = () => {
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
   const fetchCalled = useRef(false);
+  const ShareNotes = useRecoilValue(NotesSharedSelector);
 
   useEffect(() => {
     setCurrTab("Notes");
     setSelectedOption("Notes");
+
+    if(isShare){
+      setAllData(ShareNotes);
+      setLoading(false);
+      return;
+    }
 
     if (fetchCalled.current) {
       return;
@@ -88,6 +96,7 @@ export const Notes = () => {
                   key={data._id}
                   details={data}
                   removeContent={removeContent}
+                  isShare={isShare}
                 />
               </div>
             ))}

@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { BsTwitterX } from "react-icons/bs";
+import { BsTwitterX } from "react-icons/bs";   
 import { GrYoutube } from "react-icons/gr";
 import { BsLinkedin } from "react-icons/bs";
 import { SiNotion } from "react-icons/si";
@@ -77,14 +77,21 @@ const TabItem: React.FC<TabItemProps> = ({ id, text, icon: Icon, activeColor, cu
 );
 
 
-export const SideBar: React.FC = () => {
+export const SideBar = ({ isShare }: { isShare: boolean }) => {
   const [currTab, setCurrTab] = useRecoilState(currSidebar);
-   
+
   return (
     <div className="w-50 h-full z-60 fixed top-20 left-0 flex flex-col gap-5 dark:bg-secondaryBlack bg-gray-300 border-r-1 dark:border-gray-700 border-gray-500 pt-5 pl-7">
-      {tabData.map((tab) => (
-        <TabItem key={tab.id} {...tab} currTab={currTab} setCurrTab={setCurrTab} />
-      ))}
+      {tabData
+        .filter(tab => !(isShare && tab.id === "Recent"))
+        .map(tab => (
+          <TabItem
+            key={tab.id}
+            {...tab}
+            currTab={currTab}
+            setCurrTab={setCurrTab}
+          />
+        ))}
     </div>
   );
 };

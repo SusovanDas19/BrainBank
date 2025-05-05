@@ -16,6 +16,7 @@ import {
   MdOutlineSentimentDissatisfied,
 } from "react-icons/md";
 import { BiAngry } from "react-icons/bi";
+import { useParams } from "react-router-dom";
 
 
 
@@ -91,6 +92,7 @@ const YoutubeExplore = ({ link }: { link: string }) => {
   const [waitForResponse, setWaitForResponse] = useState<boolean>(false);
 
   const generateId = () => Date.now().toString();
+  const { hash } = useParams<{ hash: string }>();
 
   useEffect(() => {
     if (chatHistoryRef.current) {
@@ -117,7 +119,7 @@ const YoutubeExplore = ({ link }: { link: string }) => {
     try {
       const res = await axios.post(
         `http://localhost:3000/v1/Ai/Youtube`,
-        { link, sendMessage: prompt },
+        { link, sendMessage: prompt, hash: hash },
         { headers: { Authorization: token || "" } }
       );
       const responseText = res.data.response as string;
@@ -246,6 +248,7 @@ const TweetSentiment = ({ link }: { link: string }) => {
   const [sentiment, setSentiment] = useState<string>("");
   const [generating, setGenerating] = useState<string>("");
   const [done, setDone] = useState<boolean>(false);
+  const { hash } = useParams<{ hash: string }>();
 
   const handelSentimentAnalysis = async () => {
     setShowSenAna(false);
@@ -255,7 +258,7 @@ const TweetSentiment = ({ link }: { link: string }) => {
     try {
       const response = await axios.post(
         "http://localhost:3000/v1/Ai/Twitter",
-        { link, tweetData: tweetData },
+        { link, tweetData: tweetData, hash: hash },
         { headers: { Authorization: token || "" } }
       );
 
@@ -265,7 +268,9 @@ const TweetSentiment = ({ link }: { link: string }) => {
 
       setSentiment(response.data.sentimentText);
       setGenerating("done");
-    } catch (e) {}
+    } catch (e) {
+      
+    }
   };
   return (
     <div className="flex flex-col h-full font-primary px-6 items-center justify-center">
@@ -311,13 +316,6 @@ const TweetSentiment = ({ link }: { link: string }) => {
         {generating === "done" && (
           <div className="flex-1 w-full overflow-y-auto p-4 pt-10 rounded-md ">
             <Typewrite data={sentiment} setDone={setDone} />
-
-            {/* optional feature , analyze again */}
-            {/* {done && (
-              <div className="mt-5 mb-5 flex justify-center group">
-                <Button variant="secondary" size="md" text="Analyze Again" onClick={handelSentimentAnalysis} endIcon={<LiaSearchSolid className="text-2xl text-blackOrange group-hover:text-white"/>}/>
-              </div>
-            )} */}
           </div>
         )}
       </div>

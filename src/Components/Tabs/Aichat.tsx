@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { selectOpt } from "../../store/atoms/formAtom";
 import axios from "axios";
@@ -7,8 +7,9 @@ import { useToast } from "../UI/ToastProvider";
 import { callBackend } from "../../store/atoms/backednCallAtom";
 import { ResponseStr } from "./Youtube";
 import { Container } from "../UI/Container";
+import { AichatSharedSelector } from "../../store/selectors/shareBrainSelector";
 
-export const Aichat = () => {
+export const Aichat = ({isShare}:{isShare: boolean}) => {
   const setCurrTab = useSetRecoilState(currSidebar);
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
@@ -16,11 +17,18 @@ export const Aichat = () => {
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
   const fetchCalled = useRef(false);
+  const ShareAiChats = useRecoilValue(AichatSharedSelector);
   
   
   useEffect(() => {
     setCurrTab("Aichat");
     setSelectedOption("Aichat");
+
+    if(isShare){
+      setAllData(ShareAiChats);
+      setLoading(false);
+      return;
+    }
 
 
     if (fetchCalled.current) {
@@ -90,7 +98,7 @@ export const Aichat = () => {
             {allData.map((data: ResponseStr) => (
               <div key={data._id}>
                 <Container
-                  
+                  isShare={isShare}
                   details={data}
                   removeContent={removeContent}
                 />

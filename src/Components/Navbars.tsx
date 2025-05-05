@@ -18,18 +18,16 @@ import { motion, AnimatePresence } from "motion/react";
 import useClickOutside from "../customHooks/useClickOutside";
 import { showMenuAtom } from "../store/atoms/menuAtom";
 
-export const Navbar = () => {
+export const Navbar = ({ closeDropDown }: { closeDropDown: boolean }) => {
   const [open, setOpen] = useRecoilState(dropMenuAtom);
-  const [showMenu, setShowLogout] = useRecoilState(showMenuAtom)
+  const [showMenu, setShowLogout] = useRecoilState(showMenuAtom);
   const menuRef = useRef<HTMLDivElement>(null);
   const token = localStorage.getItem("tokenBB");
   const navigate = useNavigate();
 
-
-  useClickOutside(menuRef, ()=>{
+  useClickOutside(menuRef, () => {
     setOpen(false);
-  })
- 
+  });
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -54,16 +52,18 @@ export const Navbar = () => {
             BrainBank
           </span>
         </div>
-        <div className="flex flex-row items-center gap-4 ml-20" ref={menuRef}>
-          <Tabs
-            variant="navTabs"
-            text="MyBrain"
-            size="md"
-            endIcon={<DropMenu />}
-            onClick={() => setOpen(!open)}
-          />
-          {open && <DropDownMenu />}
-        </div>
+        {!closeDropDown && (
+          <div className="flex flex-row items-center gap-4 ml-20" ref={menuRef}>
+            <Tabs
+              variant="navTabs"
+              text="MyBrain"
+              size="md"
+              endIcon={<DropMenu />}
+              onClick={() => setOpen(!open)}
+            />
+            {open && <DropDownMenu />}
+          </div>
+        )}
       </div>
       <div className="flex flex-row mr-15 gap-20">
         <div className="flex items-center justify-center gap-4 ">
@@ -74,7 +74,10 @@ export const Navbar = () => {
             <>
               <button className="h-10 w-10 rounded-full outline cursor-pointer dark:outline-amber-50  flex items-center justify-center">
                 {showMenu ? (
-                  <RxCrossCircled className="text-4xl text-whiteOrange dark:text-blackOrange" onClick={() => setShowLogout(!showMenu)}/>
+                  <RxCrossCircled
+                    className="text-4xl text-whiteOrange dark:text-blackOrange"
+                    onClick={() => setShowLogout(!showMenu)}
+                  />
                 ) : (
                   <IoPersonCircleSharp
                     className="text-4xl text-black dark:text-white"
@@ -93,11 +96,8 @@ export const Navbar = () => {
                         ease: ["easeIn", "easeOut"],
                       }}
                       exit={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
-                      
                     >
-                     
-                      <Menu handleLogout={handleLogout}/>
-                      
+                      <Menu handleLogout={handleLogout} />
                     </motion.div>
                   ) : null}
                 </AnimatePresence>

@@ -7,6 +7,7 @@ import { callBackend } from "../../store/atoms/backednCallAtom";
 import { selectOpt } from "../../store/atoms/formAtom";
 import { Card  } from "../UI/Card";
 import { ResponseStr } from "./Youtube";
+import { TwitterSharedSelector } from "../../store/selectors/shareBrainSelector";
 
 export interface TweetResponse {
   type: string;
@@ -17,7 +18,7 @@ export interface TweetResponse {
   _id: string;
 }
 
-export const Twitter = () => {
+export const Twitter = ({isShare}:{isShare: boolean}) => {
   const setCurrtab = useSetRecoilState(currSidebar);
   const [tweets, setTweets] = useState<ResponseStr[]>([]);
   const { addToast } = useToast();
@@ -27,10 +28,20 @@ export const Twitter = () => {
   const [loading, setLoading] = useState(true);
   const theme: string = localStorage.getItem("theme") || "";
   const fetchCalled = useRef(false);
+  const shareTweets = useRecoilValue(TwitterSharedSelector);
+  const hasFiredToast = useRef(false);
+
 
   useEffect(() => {
     setCurrtab("Twitter");
     setSelectedOption("Twitter");
+
+
+    if(isShare){
+      setTweets(shareTweets);
+      setLoading(false)
+      return;
+    }
 
     if (fetchCalled.current) {
       return;
@@ -80,17 +91,23 @@ export const Twitter = () => {
       fetchCalled.current = false;
     });
     
-    const timer = setTimeout(()=>{
-        addToast({
-          type: "progress",
-          size: "md",
-          message: "Embedding tweets may take a moment..."
-        })
-      }, 7000)
-    
-
-    return ()=>{clearTimeout(timer)}
+  
   }, [isCallBackend]);
+
+  useEffect(() => {
+    if (hasFiredToast.current) return; 
+
+    const timer = setTimeout(() => {
+      addToast({
+        type: "progress",
+        size: "md",
+        message: "Embedding tweets may take a moment...",
+      });
+      hasFiredToast.current = true;
+    }, 7000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const removeTweet = (id: string) => {
     setTweets((prevTweets) =>
@@ -114,6 +131,7 @@ export const Twitter = () => {
                     preview={<TwitterEmbed tweetUrl={tweet.link} theme={theme}/>}
                     details={tweet}
                     removeContent={removeTweet}
+                    isShare={isShare}
                 />
               </div>
               

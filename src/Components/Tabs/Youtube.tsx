@@ -1,11 +1,13 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useToast } from "../UI/ToastProvider";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { callBackend } from "../../store/atoms/backednCallAtom";
 import { Card } from "../UI/Card";
 import { selectOpt } from "../../store/atoms/formAtom";
+import { ShareBrainDataAtom } from "../../store/atoms/shareBrainDataAtom";
+import { YoutubeSharedSelector } from "../../store/selectors/shareBrainSelector";
 
 export interface ResponseStr {
   type: string;
@@ -18,19 +20,28 @@ export interface ResponseStr {
   _id: string;
 }
 
-export const Youtube = () => {
+export const Youtube = ({isShare}:{isShare: boolean}) => {
   const setCurrtab = useSetRecoilState(currSidebar);
   const [videos, setVideos] = useState<ResponseStr[]>([]);
+  const shareData  = useRecoilValue(ShareBrainDataAtom);
   const { addToast } = useToast();
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);
   const [loading, setLoading] = useState(true);
   const fetchCalled = useRef(false);
+  const shareYtPosts = useRecoilValue(YoutubeSharedSelector)
+  const hasFiredToast = useRef(false);
 
 
   useEffect(() => {
     setCurrtab("Youtube");
     setSelectedOption("Youtube");
+
+    if(isShare){
+      setVideos(shareYtPosts);
+      setLoading(false)
+      return;
+    }
 
     if (fetchCalled.current) {
       return;
@@ -77,19 +88,22 @@ export const Youtube = () => {
     getAllVideos().finally(() => {
       fetchCalled.current = false;
     });
+  }, [isCallBackend]);
+
+  useEffect(() => {
+    if (hasFiredToast.current) return; 
 
     const timer = setTimeout(() => {
       addToast({
         type: "progress",
         size: "md",
-        message: "Embedding Youtube videos may take a moment...",
+        message: "Embedding YouTube videos may take a moment…",
       });
+      hasFiredToast.current = true;
     }, 3000);
 
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [isCallBackend]);
+    return () => clearTimeout(timer);
+  }, []);
 
   const removeVideo = (id: string) => {
     setVideos((prevVideo) =>
@@ -111,6 +125,7 @@ export const Youtube = () => {
                 preview={<YouTubeEmbed videoUrl={video.link} />}
                 details={video}
                 removeContent={removeVideo}
+                isShare={isShare}
               />
             ))}
           </div>

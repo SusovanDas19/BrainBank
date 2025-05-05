@@ -7,6 +7,7 @@ import { callBackend } from "../../store/atoms/backednCallAtom";
 import { selectOpt } from "../../store/atoms/formAtom";
 import { Card } from "../UI/Card";
 import { ResponseStr } from "./Youtube";
+import { LinkedinSharedSelector } from "../../store/selectors/shareBrainSelector";
 
 export interface LinkedInResponse {
   type: string;
@@ -17,7 +18,7 @@ export interface LinkedInResponse {
   _id: string;
 }
 
-export const Linkedin = () => {
+export const Linkedin = ({isShare}:{isShare: boolean}) => {
   const setCurrtab = useSetRecoilState(currSidebar);
   const [posts, setPosts] = useState<ResponseStr[]>([]);
   const { addToast } = useToast();
@@ -26,11 +27,19 @@ export const Linkedin = () => {
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [loading, setLoading] = useState(true);
   const fetchCalled = useRef(false);
+  const hasFiredToast = useRef(false);
+  const shareLinkedInPosts = useRecoilValue(LinkedinSharedSelector);
   
 
   useEffect(() => {
     setCurrtab("Linkedin");
     setSelectedOption("Linkedin");
+
+    if(isShare){
+      setPosts(shareLinkedInPosts);
+      setLoading(false);
+      return;
+    }
 
     if (fetchCalled.current) {
       return;
@@ -80,16 +89,23 @@ export const Linkedin = () => {
       fetchCalled.current = false;
     });
 
-    const timer = setTimeout(()=>{
+   
+  }, [isCallBackend]);
+
+  useEffect(() => {
+    if (hasFiredToast.current) return; 
+
+    const timer = setTimeout(() => {
       addToast({
         type: "progress",
         size: "md",
-        message: "Embedding Linkedin Posts may take a moment..."
-      })
-    }, 1000)
-  
-    return ()=>{clearTimeout(timer)}
-  }, [isCallBackend]);
+        message: "Embedding Linkedin Posts may take a moment...",
+      });
+      hasFiredToast.current = true;
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const removePost = (id: string) => {
     setPosts((prevPosts) =>
@@ -111,6 +127,7 @@ export const Linkedin = () => {
                   preview={<LinkedInEmbed postUrl={post.link}/>}
                   details={post}
                   removeContent={removePost}
+                  isShare={isShare}
                 />
               
             ))}
