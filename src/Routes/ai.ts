@@ -79,7 +79,7 @@ aiRouter.post(
 //   accessSecret: process.env.TWITTER_ACCESS_SECRET // Your Twitter Access Secret
 // });
 
-aiRouter.post("/Twitter", async (req: Request, res: Response): Promise<any> => {
+aiRouter.post("/Twitter",userAuth, async (req: Request, res: Response): Promise<any> => {
   try {
     const tweetUrl = req.body.link;
     let tweetData = req.body.tweetData;

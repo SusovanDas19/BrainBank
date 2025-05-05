@@ -78,54 +78,13 @@ shareRouter.delete(
 );
 
 shareRouter.get(
-  "/details/:shareToken",
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { shareToken } = req.params;
-      const decoded = jwt.verify(shareToken, shareLinkKey) as jwt.JwtPayload;
-      const userId = decoded.userId;
-
-      const user = await UserModel.findById(userId);
-
-      if (!user) {
-        res.status(400).json({
-          message: "Link of the user does not exist",
-        });
-        return;
-      }
-
-      const allUserContent = await newContentModel
-        .find({ userId })
-        .populate("userId", "username -_id");
-
-      if (allUserContent) {
-        res.status(200).json({
-          message: "All content of the user fetched",
-          allContent: allUserContent,
-        });
-        return;
-      } else {
-        res.status(400).json({
-          message: "Unable to fetch all content",
-        });
-      }
-    } catch (error) {
-      res.status(500).json({
-        message: "Internal server error",
-        error: error,
-      });
-    }
-  }
-);
-
-shareRouter.get(
   "/show/:hash",
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { hash } = req.params;
 
       const fetchUserId = await linkModel.findOne({ hash });
-      
+
       if (!fetchUserId) {
         res.status(404).json({ message: "Link not found" });
         return;
@@ -136,12 +95,15 @@ shareRouter.get(
         .select("-userId -__v")
         .lean();
 
-      if (!userData) {
+      const user = await UserModel.findById(fetchUserId.userId).select("username");
+
+      if (!userData || !user) {
         res.status(404).json({ message: "User not found" });
         return;
       }
 
       res.status(200).json({
+        username: user.username,
         user: userData,
       });
     } catch (e) {

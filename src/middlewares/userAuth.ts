@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { linkModel } from "../Database/db";
 
 const jwtUserKey: string = process.env.JWT_USER_KEY || "abjcdsj45";
 
@@ -19,10 +20,18 @@ declare module "jsonwebtoken" {
   }
 }
 
-export const userAuth = (req: Request, res: Response, next: NextFunction): void => {
+export const userAuth = async (req: Request, res: Response, next: NextFunction):  Promise<void> => {
   const token: string = req.headers.authorization || "";
+  const hash: string = req.body.hash
 
-  if (!token) {
+  if(hash && !token){
+    const user = await linkModel.find({hash});
+    if(user) return next();
+    res.status(404).json({ message: "Share link not found" });
+    return
+  }
+
+  if (!token && !hash) {
     res.status(401).json({ message: "Token missing, authorization denied" });
     return;
   }
