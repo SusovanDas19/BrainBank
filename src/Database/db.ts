@@ -7,6 +7,12 @@ const UserSchema = new Schema({
     password: {type: String,required: true }
 })
 
+const OrgSchema = new Schema({
+    OrgName: {type: String, required: true, unique: true},
+    OrgPassword: {type: String, required: true},
+    userId: {type: String, ref: 'users'},
+})
+
 const newContentSchema = new Schema({
     title: {type: String, require: true},
     description: {type: String, required: true},
@@ -18,11 +24,6 @@ const newContentSchema = new Schema({
 })
 
 
-const orgSchema = new Schema({
-    username: {type: String, required: true},
-    userId: {type: String, ref: 'users'},
-})
-
 
 const LinkSchema = new Schema({
     hash: {type: String, required: true},
@@ -32,3 +33,4 @@ const LinkSchema = new Schema({
 export const UserModel = model("users", UserSchema);
 export const newContentModel = model("content", newContentSchema);
 export const linkModel = model("links",LinkSchema);
+export const OrgModel = model("orgs",OrgSchema);

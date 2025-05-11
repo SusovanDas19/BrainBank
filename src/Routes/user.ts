@@ -10,7 +10,7 @@ const jwtUserKey: string = process.env.JWT_USER_KEY || "abjcdsj45";
 const userRouter = Router();
 
 // Define the Zod schema
-const validBodySchema = z
+export const validBodySchema = z
   .object({
     username: z
       .string()
@@ -38,8 +38,6 @@ const validBodySchema = z
     message: "Passwords must match",
   });
 
-// Define the expected type excluding confirmPassword
-type ValidBodyType = Omit<z.infer<typeof validBodySchema>, "confirmPassword">;
 
 userRouter.post(
   "/signup",

@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.validBodySchema = void 0;
 const express_1 = require("express");
 const zod_1 = require("zod");
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -21,7 +22,7 @@ const hashRound = parseInt(process.env.HASHROUND || "10", 10);
 const jwtUserKey = process.env.JWT_USER_KEY || "abjcdsj45";
 const userRouter = (0, express_1.Router)();
 // Define the Zod schema
-const validBodySchema = zod_1.z
+exports.validBodySchema = zod_1.z
     .object({
     username: zod_1.z
         .string()
@@ -50,7 +51,7 @@ const validBodySchema = zod_1.z
 });
 userRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const parsedBody = validBodySchema.safeParse(req.body);
+    const parsedBody = exports.validBodySchema.safeParse(req.body);
     if (!parsedBody.success) {
         const error = ((_a = parsedBody.error.issues[0]) === null || _a === void 0 ? void 0 : _a.message) || "Invalid input";
         res.status(400).json({ message: `Validation error: ${error}` });
