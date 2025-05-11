@@ -1,18 +1,24 @@
 import { Router, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { userAuth } from "../middlewares/userAuth";
-import { linkModel, newContentModel, UserModel } from "../Database/db";
+import {
+  linkModel,
+  newContentModel,
+  OrgModel,
+  UserModel,
+} from "../Database/db";
 import { randomHash } from "../utils/randomHash";
+import { anyAuth } from "../middlewares/anyAuth";
 
 const shareRouter = Router();
-const shareLinkKey: string = process.env.JWT_SHARE_LINK_KEY || "ABfgk8912";
 const baseUrl: string = process.env.BASE_URL || "http://localhost:5000";
 
 shareRouter.post(
   "/link",
-  userAuth,
+  anyAuth,
   async (req: Request, res: Response): Promise<void> => {
-    const userId: string = req.userId || "";
+    const userId: string = req.actorId || "";
+    const actorType: string = req.body.type;
 
     if (!userId) {
       res.status(400).json({ message: "Invalid user ID" });
@@ -26,7 +32,11 @@ shareRouter.post(
 
       if (!existingLink) {
         hash = randomHash(10);
-        await linkModel.create({ hash, userId });
+        await linkModel.create({
+          hash: hash,
+          userId: userId,
+          userType: actorType,
+        });
       } else {
         hash = existingLink.hash;
       }
@@ -49,9 +59,9 @@ shareRouter.post(
 
 shareRouter.delete(
   "/link/delete",
-  userAuth,
+  anyAuth,
   async (req: Request, res: Response) => {
-    const userId: string = req.userId || "";
+    const userId: string = req.actorId || "";
 
     if (!userId) {
       res.status(400).json({ message: "Invalid user ID" });
@@ -90,21 +100,29 @@ shareRouter.get(
         return;
       }
 
-      const userData = await newContentModel
+      let data = await newContentModel
         .find({ userId: fetchUserId.userId })
         .select("-userId -__v")
         .lean();
 
-      const user = await UserModel.findById(fetchUserId.userId).select("username");
+      let username;
 
-      if (!userData || !user) {
+      if (fetchUserId.userType === "default") {
+        const name = await UserModel.findById(fetchUserId.userId).select("username");
+        username = name?.username
+      } else {
+        const name = await OrgModel.findById(fetchUserId.userId).select("OrgName");
+        username = name?.OrgName
+      }
+
+      if (!data || !username) {
         res.status(404).json({ message: "User not found" });
         return;
       }
-
+      
       res.status(200).json({
-        username: user.username,
-        user: userData,
+        username: username,
+        user: data,
       });
     } catch (e) {
       res.status(500).json({ message: "Server error" });

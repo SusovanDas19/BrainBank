@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { linkModel } from "../Database/db";
 
-const jwtOrgKey: string = process.env.JWT_ORG_KEY || "abjcdsj45";
+const jwtOrgKey: string = process.env.JWT_ORG_KEY!;
 
 // Extend Express Request to include userId
 declare global {

@@ -24,6 +24,7 @@ const newContentSchema = new mongoose_1.Schema({
 const LinkSchema = new mongoose_1.Schema({
     hash: { type: String, required: true },
     userId: { type: ObjectId, ref: 'users', required: true, unique: true },
+    userType: { type: String, require: true }
 });
 exports.UserModel = (0, mongoose_1.model)("users", UserSchema);
 exports.newContentModel = (0, mongoose_1.model)("content", newContentSchema);

@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { string } from "zod";
 const ObjectId = Schema.ObjectId
 
 
@@ -27,7 +28,8 @@ const newContentSchema = new Schema({
 
 const LinkSchema = new Schema({
     hash: {type: String, required: true},
-    userId: {type: ObjectId, ref: 'users', required: true, unique: true}, 
+    userId: {type: ObjectId, ref: 'users', required: true, unique: true},
+    userType: {type: String, require: true}
 })
 
 export const UserModel = model("users", UserSchema);

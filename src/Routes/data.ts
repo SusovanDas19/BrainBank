@@ -3,15 +3,16 @@ import { Request, Response } from "express";
 import { userAuth } from "../middlewares/userAuth";
 import { newContentModel, UserModel } from "../Database/db";
 import mongoose from "mongoose";
+import { anyAuth } from "../middlewares/anyAuth";
 
 const dataRouter = Router();
 
 dataRouter.post(
   "/add",
-  userAuth,
+  anyAuth,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const userId: string = req.userId || "";
+      const userId: string = req.actorId || "";
       const { title, description, type, link, tags, date } = req.body;
 
       if (!title || !description || !type) {
@@ -44,9 +45,9 @@ dataRouter.post(
 
 dataRouter.get(
   "/fetch",
-  userAuth,
+  anyAuth,
   async (req: Request, res: Response): Promise<void> => {
-    const userId: string = req.userId || "";
+    const userId: string = req.actorId || "";
     const contentType: string = (req.query.type as string) || "";
     const latestId: string = (req.query.latestId as string) || "";
 
@@ -79,9 +80,9 @@ dataRouter.get(
 
 dataRouter.get(
   "/fetch/recent",
-  userAuth,
+  anyAuth,
   async (req: Request, res: Response): Promise<void> => {
-    const userId: string = req.userId as string;
+    const userId: string = req.actorId as string;
 
     const afterId = req.query.afterId as string | undefined;
     const query: any = { userId,
@@ -116,9 +117,9 @@ dataRouter.get(
 
 dataRouter.delete(
   "/remove",
-  userAuth,
+  anyAuth,
   async (req: Request, res: Response): Promise<void> => {
-    const userId: string = req.userId || "";
+    const userId: string = req.actorId || "";
     const { contentId } = req.body;
 
     try {

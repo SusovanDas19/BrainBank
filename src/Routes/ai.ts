@@ -6,12 +6,13 @@ import { GoogleGenAI } from "@google/genai";
 const { TwitterApi } = require("twitter-api-v2");
 const twitterClient = new TwitterApi(process.env.TWITTER_BEARER_TOKEN);
 import axios from "axios";
+import { anyAuth } from "../middlewares/anyAuth";
 
 const aiRouter = Router();
 
 aiRouter.post(
   "/Youtube",
-  userAuth,
+  anyAuth,
   async (req: Request, res: Response): Promise<void> => {
     const videoLink: string = req.body.link || "";
     const prompt: string =
@@ -25,8 +26,6 @@ aiRouter.post(
     }
 
     try {
-      console.log("req come with link: ", videoLink);
-      console.log("prompt: ", prompt);
       const ai = new GoogleGenAI({
         apiKey: process.env.API_KEY,
       });
@@ -79,7 +78,7 @@ aiRouter.post(
 //   accessSecret: process.env.TWITTER_ACCESS_SECRET // Your Twitter Access Secret
 // });
 
-aiRouter.post("/Twitter",userAuth, async (req: Request, res: Response): Promise<any> => {
+aiRouter.post("/Twitter",anyAuth, async (req: Request, res: Response): Promise<any> => {
   try {
     const tweetUrl = req.body.link;
     let tweetData = req.body.tweetData;

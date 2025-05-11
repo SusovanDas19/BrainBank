@@ -13,13 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const userAuth_1 = require("../middlewares/userAuth");
 const db_1 = require("../Database/db");
 const mongoose_1 = __importDefault(require("mongoose"));
+const anyAuth_1 = require("../middlewares/anyAuth");
 const dataRouter = (0, express_1.default)();
-dataRouter.post("/add", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+dataRouter.post("/add", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = req.userId || "";
+        const userId = req.actorId || "";
         const { title, description, type, link, tags, date } = req.body;
         if (!title || !description || !type) {
             res
@@ -46,8 +46,8 @@ dataRouter.post("/add", userAuth_1.userAuth, (req, res) => __awaiter(void 0, voi
         res.status(500).json({ error: "Internal server error" });
     }
 }));
-dataRouter.get("/fetch", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.userId || "";
+dataRouter.get("/fetch", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.actorId || "";
     const contentType = req.query.type || "";
     const latestId = req.query.latestId || "";
     try {
@@ -74,8 +74,8 @@ dataRouter.get("/fetch", userAuth_1.userAuth, (req, res) => __awaiter(void 0, vo
         });
     }
 }));
-dataRouter.get("/fetch/recent", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.userId;
+dataRouter.get("/fetch/recent", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.actorId;
     const afterId = req.query.afterId;
     const query = { userId,
         // type: { $in: ['Youtube', 'Twitter', 'Linkedin'] }
@@ -104,8 +104,8 @@ dataRouter.get("/fetch/recent", userAuth_1.userAuth, (req, res) => __awaiter(voi
         res.status(500).json({ message: "Internal server error." });
     }
 }));
-dataRouter.delete("/remove", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.userId || "";
+dataRouter.delete("/remove", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.actorId || "";
     const { contentId } = req.body;
     try {
         const isValidContentId = yield db_1.newContentModel.findOne({

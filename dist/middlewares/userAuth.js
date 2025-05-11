@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userAuth = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = require("../Database/db");
-const jwtUserKey = process.env.JWT_USER_KEY || "abjcdsj45";
+const jwtUserKey = process.env.JWT_USER_KEY;
 const userAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.headers.authorization || "";
     const hash = req.body.hash;

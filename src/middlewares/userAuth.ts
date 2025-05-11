@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { linkModel } from "../Database/db";
 
-const jwtUserKey: string = process.env.JWT_USER_KEY || "abjcdsj45";
+const jwtUserKey: string = process.env.JWT_USER_KEY!;
 
 // Extend Express Request to include userId
 declare global {
@@ -38,6 +38,7 @@ export const userAuth = async (req: Request, res: Response, next: NextFunction):
 
   try {
     const { userId } = <jwt.CustomJwtPayload>jwt.verify(token, jwtUserKey);
+
 
     if (userId) {
       req.userId = userId;

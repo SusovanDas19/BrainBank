@@ -10,14 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const userAuth_1 = require("../middlewares/userAuth");
 const db_1 = require("../Database/db");
 const randomHash_1 = require("../utils/randomHash");
+const anyAuth_1 = require("../middlewares/anyAuth");
 const shareRouter = (0, express_1.Router)();
-const shareLinkKey = process.env.JWT_SHARE_LINK_KEY || "ABfgk8912";
 const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-shareRouter.post("/link", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.userId || "";
+shareRouter.post("/link", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.actorId || "";
+    const actorType = req.body.type;
     if (!userId) {
         res.status(400).json({ message: "Invalid user ID" });
         return;
@@ -28,7 +28,11 @@ shareRouter.post("/link", userAuth_1.userAuth, (req, res) => __awaiter(void 0, v
         let profileLink;
         if (!existingLink) {
             hash = (0, randomHash_1.randomHash)(10);
-            yield db_1.linkModel.create({ hash, userId });
+            yield db_1.linkModel.create({
+                hash: hash,
+                userId: userId,
+                userType: actorType,
+            });
         }
         else {
             hash = existingLink.hash;
@@ -47,8 +51,8 @@ shareRouter.post("/link", userAuth_1.userAuth, (req, res) => __awaiter(void 0, v
         });
     }
 }));
-shareRouter.delete("/link/delete", userAuth_1.userAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.userId || "";
+shareRouter.delete("/link/delete", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.actorId || "";
     if (!userId) {
         res.status(400).json({ message: "Invalid user ID" });
         return;
@@ -77,18 +81,26 @@ shareRouter.get("/show/:hash", (req, res) => __awaiter(void 0, void 0, void 0, f
             res.status(404).json({ message: "Link not found" });
             return;
         }
-        const userData = yield db_1.newContentModel
+        let data = yield db_1.newContentModel
             .find({ userId: fetchUserId.userId })
             .select("-userId -__v")
             .lean();
-        const user = yield db_1.UserModel.findById(fetchUserId.userId).select("username");
-        if (!userData || !user) {
+        let username;
+        if (fetchUserId.userType === "default") {
+            const name = yield db_1.UserModel.findById(fetchUserId.userId).select("username");
+            username = name === null || name === void 0 ? void 0 : name.username;
+        }
+        else {
+            const name = yield db_1.OrgModel.findById(fetchUserId.userId).select("OrgName");
+            username = name === null || name === void 0 ? void 0 : name.OrgName;
+        }
+        if (!data || !username) {
             res.status(404).json({ message: "User not found" });
             return;
         }
         res.status(200).json({
-            username: user.username,
-            user: userData,
+            username: username,
+            user: data,
         });
     }
     catch (e) {
