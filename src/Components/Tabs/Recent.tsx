@@ -78,7 +78,7 @@ export const Recent = () => {
       </div>
       <div className="flex-1 overflow-y-auto p-4 mb-40">
         {others && containerPosts.length > 0 ? (
-          <div><Others containerPosts={containerPosts} removeContent={removePost} /></div>
+          <div className="min-h-screen pt-50"><Others containerPosts={containerPosts} removeContent={removePost} /></div>
           
         ) : (
           <div className="columns-4 gap-10 pr-10 pl-10 mt-50">
@@ -111,9 +111,9 @@ const Others = ({ containerPosts, removeContent }:{
   removeContent: (id: string)=> void;
 }) => {
   return (
-    <div className="columns-4 gap-10 pr-10 pl-10 h-screen relative mt-10">
+    <div className="w-full columns-4 gap-10 pr-10 pl-10 h-screen relative mt-10">
       {containerPosts.map((post) => (
-        <div key={post._id} className="pb-7">
+        <div key={post._id} className="pb-7 break-inside-avoid">
           <Container details={post} removeContent={removeContent} />
         </div>
       ))}

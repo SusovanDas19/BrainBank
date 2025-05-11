@@ -65,9 +65,10 @@ export const Container = ({
   };
 
   return (
-    <div className="relative group w-70">
+    <div className="relative group">
       <div
         className="
+        h-full
         absolute inset-0 
         flex items-center justify-center 
         text-6xl font-bold 
@@ -84,7 +85,7 @@ export const Container = ({
 
       <motion.div
         key={details._id}
-        className=" relative z-10 
+        className=" relative z-10
         rounded-md bg-white/5 dark:bg-black/30 
         backdrop-blur-md border border-blackOrange/50  
         p-2 shadow-lg font-primary"
@@ -93,15 +94,7 @@ export const Container = ({
         transition={{ duration: 1, ease: "backOut" }}
         exit={{ y: -50, opacity: 0, filter: "blur(10px)" }}
       >
-        <motion.div
-          className="absolute bg-red-300 inset-0 flex items-center justify-center opacity-0 group-hover:opacity-10 text-6xl font-extrabold text-black dark:text-white pointer-events-none transition-opacity duration-300"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0 }}
-          whileHover={{ opacity: 0.1 }}
-        >
-          {details.type}
-        </motion.div>
-
+      
         <h1 className="text-lg font-semibold text-black dark:text-white">
           {details.title}
         </h1>

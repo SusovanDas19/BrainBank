@@ -23,7 +23,6 @@ export interface ResponseStr {
 export const Youtube = ({isShare}:{isShare: boolean}) => {
   const setCurrtab = useSetRecoilState(currSidebar);
   const [videos, setVideos] = useState<ResponseStr[]>([]);
-  const shareData  = useRecoilValue(ShareBrainDataAtom);
   const { addToast } = useToast();
   const setSelectedOption = useSetRecoilState(selectOpt);
   const [isCallBackend, setCallBackend] = useRecoilState(callBackend);

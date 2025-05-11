@@ -24,7 +24,8 @@ export const Navbar = ({ closeDropDown }: { closeDropDown: boolean }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const token = localStorage.getItem("tokenBB");
   const navigate = useNavigate();
-
+  const currProfileVarient: string = localStorage.getItem("profileVarientBB") || ""
+  console.log("curr varient "+currProfileVarient);
   useClickOutside(menuRef, () => {
     setOpen(false);
   });
@@ -33,6 +34,9 @@ export const Navbar = ({ closeDropDown }: { closeDropDown: boolean }) => {
     if (window.confirm("Are you sure you want to logout?")) {
       localStorage.removeItem("tokenBB");
       localStorage.removeItem("usernameBB");
+      localStorage.removeItem("profileVarientBB");
+      localStorage.removeItem("theme");
+      localStorage.removeItem("currTabBB");
       navigate("/");
       window.location.reload();
     }
@@ -56,7 +60,7 @@ export const Navbar = ({ closeDropDown }: { closeDropDown: boolean }) => {
           <div className="flex flex-row items-center gap-4 ml-20" ref={menuRef}>
             <Tabs
               variant="navTabs"
-              text="MyBrain"
+              text={currProfileVarient}
               size="md"
               endIcon={<DropMenu />}
               onClick={() => setOpen(!open)}
