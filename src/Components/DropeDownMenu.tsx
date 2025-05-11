@@ -166,7 +166,7 @@ const SwitchData = () => {
     }
   };
   return (
-    <div className="absolute top-15 ml-10 bg-secondaryBlack p-5 rounded border border-white">
+    <div className="absolute top-15 ml-10  bg-gray-300 dark:bg-secondaryBlack p-5 rounded border  border-gray-800 dark:border-white">
       {currProfileVarient === "MyOrg" ? (
         <form onSubmit={switchToMyBrain} className="flex flex-col gap-3">
           <InputBox

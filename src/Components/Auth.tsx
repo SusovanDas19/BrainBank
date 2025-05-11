@@ -156,13 +156,13 @@ const Signin = () => {
               />
               <InputBox
                 variant="auth"
-                placeholder="Username"
+                placeholder="Your Username"
                 type="text"
                 name="username"
               />
               <InputBox
                 variant="auth"
-                placeholder="Password"
+                placeholder="Your Password"
                 type="password"
                 name="password"
               />
@@ -352,13 +352,13 @@ const Signup = () => {
               />
               <InputBox
                 variant="auth"
-                placeholder="Username"
+                placeholder="Your Username"
                 type="text"
                 name="username"
               />
               <InputBox
                 variant="auth"
-                placeholder="Password"
+                placeholder="Your Password"
                 type="password"
                 name="password"
               />

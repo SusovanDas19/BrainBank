@@ -92,6 +92,9 @@ const ShareBrain = ({
   const { addToast } = useToast();
   const token = localStorage.getItem("tokenBB");
   const setShowMenu = useSetRecoilState(showMenuAtom);
+  const currProfileVarient: string =
+    localStorage.getItem("profileVarientBB") || "";
+  const type = currProfileVarient === "MyOrg" ? "org" : "default";
   
 
   const generateShareLink = async () => {
@@ -99,7 +102,7 @@ const ShareBrain = ({
       setLoading(true)
       const response = await axios.post(
         "http://localhost:3000/v1/share/brain/link",
-        {},
+        {type},
         {
           headers: {
             Authorization: token,
@@ -213,7 +216,7 @@ const ShareBrain = ({
       {link && !loading && (
         <div className="flex items-center justify-center flex-col gap-4">
           <div className="flex flex-row gap-3 justify-center items-center">
-            <div className="w-80 h-10 rounded-md bg-whiteOrange/30 dark:bg-blackOrange/30 border-l-5 border-blackOrange flex justify-center items-center">
+            <div className="w-90 h-10 rounded-md bg-whiteOrange/30 dark:bg-blackOrange/30 border-l-5 border-blackOrange flex justify-center items-center">
               <p className="break-all text-lg font-medium dark:text-white">
                 {link}
               </p>
