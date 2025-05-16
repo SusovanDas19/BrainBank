@@ -16,17 +16,35 @@ const express_1 = __importDefault(require("express"));
 const db_1 = require("../Database/db");
 const mongoose_1 = __importDefault(require("mongoose"));
 const anyAuth_1 = require("../middlewares/anyAuth");
+const genai_1 = require("@google/genai");
 const dataRouter = (0, express_1.default)();
+const ai = new genai_1.GoogleGenAI({ apiKey: process.env.API_KEY });
 dataRouter.post("/add", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
+    const userId = req.actorId || "";
+    const { title, description, type, link, tags, date } = req.body;
     try {
-        const userId = req.actorId || "";
-        const { title, description, type, link, tags, date } = req.body;
         if (!title || !description || !type) {
             res
                 .status(400)
                 .json({ error: "Title, description, and type are required." });
             return;
         }
+        const alltags = Array.isArray(tags) && tags.length ? `Tags: ${tags.join(", ")}` : "";
+        const textPayload = [
+            `Title: ${title}`,
+            ``,
+            `Description: ${description}`,
+            ``,
+            `Type: ${type}`,
+            alltags
+        ].filter(Boolean).join("\n");
+        const response = yield ai.models.embedContent({
+            model: "text-embedding-004",
+            contents: textPayload,
+            config: { outputDimensionality: 768 }
+        });
+        const vector = (_c = (_b = (_a = response.embeddings) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.values) !== null && _c !== void 0 ? _c : [];
         // Create new content
         yield db_1.newContentModel.create({
             title,
@@ -36,6 +54,7 @@ dataRouter.post("/add", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 
             tags,
             userId,
             date,
+            embedding: vector,
         });
         res.status(201).json({
             message: "New content created successfully",
@@ -55,7 +74,7 @@ dataRouter.get("/fetch", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void
         if (latestId) {
             query._id = { $gt: new mongoose_1.default.Types.ObjectId(latestId) };
         }
-        const content = yield db_1.newContentModel.find(query).sort({ _id: -1 });
+        const content = yield db_1.newContentModel.find(query).select('-userId -embedding').sort({ _id: -1 });
         if (content) {
             res.status(201).json({
                 message: "All content fetched.",
@@ -77,8 +96,8 @@ dataRouter.get("/fetch", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void
 dataRouter.get("/fetch/recent", anyAuth_1.anyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.actorId;
     const afterId = req.query.afterId;
-    const query = { userId,
-        // type: { $in: ['Youtube', 'Twitter', 'Linkedin'] }
+    const query = {
+        userId,
     };
     if (afterId && mongoose_1.default.Types.ObjectId.isValid(afterId)) {
         query._id = { $gt: new mongoose_1.default.Types.ObjectId(afterId) };
@@ -86,6 +105,7 @@ dataRouter.get("/fetch/recent", anyAuth_1.anyAuth, (req, res) => __awaiter(void 
     try {
         const recentPosts = yield db_1.newContentModel
             .find(query)
+            .select('-userId -embedding')
             .sort({ _id: -1 })
             .limit(15)
             .lean();

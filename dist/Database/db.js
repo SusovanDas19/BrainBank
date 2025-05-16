@@ -20,6 +20,7 @@ const newContentSchema = new mongoose_1.Schema({
     date: { type: String },
     tags: { type: [String] },
     userId: { type: String, ref: 'users' },
+    embedding: { type: [Number], index: 'vectorSearch' },
 });
 const LinkSchema = new mongoose_1.Schema({
     hash: { type: String, required: true },

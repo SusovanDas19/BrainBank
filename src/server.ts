@@ -9,6 +9,7 @@ import cors from "cors";
 import aiRouter from "./Routes/ai";
 import orgRouter from "./Routes/org";
 import switchRouter from "./Routes/switch";
+import searchRouter from "./Routes/search";
 const port = process.env.PORT || 3000;
 const mongoUrl = process.env.MONGODB_URL || "";
 const app = express();
@@ -23,6 +24,7 @@ app.use("/v1/switch",switchRouter)
 app.use("/v1/share/brain", shareRouter);
 app.use("/v1/content", dataRouter);
 app.use("/v1/Ai", aiRouter)
+app.use("/v1/search", searchRouter);
 // app.use("/v1/find/", );
 
 mongoose

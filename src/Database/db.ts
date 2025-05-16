@@ -22,6 +22,7 @@ const newContentSchema = new Schema({
     date: {type: String},
     tags: {type: [String]},
     userId: {type: String, ref: 'users'},
+    embedding:   { type: [Number], index: 'vectorSearch' },
 })
 
 

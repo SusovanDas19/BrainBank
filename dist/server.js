@@ -47,6 +47,7 @@ const cors_1 = __importDefault(require("cors"));
 const ai_1 = __importDefault(require("./Routes/ai"));
 const org_1 = __importDefault(require("./Routes/org"));
 const switch_1 = __importDefault(require("./Routes/switch"));
+const search_1 = __importDefault(require("./Routes/search"));
 const port = process.env.PORT || 3000;
 const mongoUrl = process.env.MONGODB_URL || "";
 const app = (0, express_1.default)();
@@ -58,6 +59,7 @@ app.use("/v1/switch", switch_1.default);
 app.use("/v1/share/brain", share_1.default);
 app.use("/v1/content", data_1.default);
 app.use("/v1/Ai", ai_1.default);
+app.use("/v1/search", search_1.default);
 // app.use("/v1/find/", );
 mongoose_1.default
     .connect(mongoUrl)

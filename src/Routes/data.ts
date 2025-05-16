@@ -1,20 +1,20 @@
 import Router from "express";
 import { Request, Response } from "express";
-import { userAuth } from "../middlewares/userAuth";
-import { newContentModel, UserModel } from "../Database/db";
+import { newContentModel } from "../Database/db";
 import mongoose from "mongoose";
 import { anyAuth } from "../middlewares/anyAuth";
+import { GoogleGenAI } from "@google/genai";
 
 const dataRouter = Router();
+const ai = new GoogleGenAI({apiKey: process.env.API_KEY})
 
 dataRouter.post(
   "/add",
   anyAuth,
   async (req: Request, res: Response): Promise<void> => {
+    const userId: string = req.actorId || "";
+    const { title, description, type, link, tags, date } = req.body;
     try {
-      const userId: string = req.actorId || "";
-      const { title, description, type, link, tags, date } = req.body;
-
       if (!title || !description || !type) {
         res
           .status(400)
@@ -22,6 +22,24 @@ dataRouter.post(
         return;
       }
 
+      const alltags = Array.isArray(tags) && tags.length? `Tags: ${tags.join(", ")}`: "";
+      const textPayload =[
+        `Title: ${title}`,
+        ``,
+        `Description: ${description}`,
+        ``,
+        `Type: ${type}`,
+        alltags
+      ].filter(Boolean).join("\n");
+
+      const response = await ai.models.embedContent({
+        model: "text-embedding-004",
+        contents: textPayload,
+        config: {outputDimensionality: 768}
+      })
+
+      const vector: number[] = response.embeddings?.[0]?.values ?? [];
+      
       // Create new content
       await newContentModel.create({
         title,
@@ -31,6 +49,7 @@ dataRouter.post(
         tags,
         userId,
         date,
+        embedding: vector,
       });
 
       res.status(201).json({
@@ -58,7 +77,7 @@ dataRouter.get(
         query._id = { $gt: new mongoose.Types.ObjectId(latestId) };
       }
 
-      const content = await newContentModel.find(query).sort({ _id: -1 });
+      const content = await newContentModel.find(query).select('-userId -embedding').sort({ _id: -1 });
 
       if (content) {
         res.status(201).json({
@@ -85,9 +104,9 @@ dataRouter.get(
     const userId: string = req.actorId as string;
 
     const afterId = req.query.afterId as string | undefined;
-    const query: any = { userId,
-      // type: { $in: ['Youtube', 'Twitter', 'Linkedin'] }
-     };
+    const query: any = {
+      userId,
+    };
 
     if (afterId && mongoose.Types.ObjectId.isValid(afterId)) {
       query._id = { $gt: new mongoose.Types.ObjectId(afterId) };
@@ -96,6 +115,7 @@ dataRouter.get(
     try {
       const recentPosts = await newContentModel
         .find(query)
+        .select('-userId -embedding')
         .sort({ _id: -1 })
         .limit(15)
         .lean();
