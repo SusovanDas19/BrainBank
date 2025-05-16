@@ -1,11 +1,9 @@
 
-import { useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { currSidebar } from "../../store/atoms/currSideTab";
 import { useEffect, useState } from "react";
 import { selectOpt } from "../../store/atoms/formAtom";
-import { InputBox } from "../UI/InputBox";
-import { IoSearchOutline } from "react-icons/io5";
-import { RxCrossCircled } from "react-icons/rx";
+
 import YouTubeEmbed, { ResponseStr } from "./Youtube";
 import axios from "axios";
 import { useToast } from "../UI/ToastProvider";
@@ -14,20 +12,23 @@ import TwitterEmbed from "./Twitter";
 import { LinkedInEmbed } from "./Linkedin";
 import { Container } from "../UI/Container";
 import { Button } from "../UI/Button";
+import { Search } from "../VectorSearch";
+import { recentSectionPosts } from "../../store/atoms/recentSection";
 
 export const Recent = () => {
   const setCurrtab = useSetRecoilState(currSidebar);
   const setSelectedOption = useSetRecoilState(selectOpt);
-  const [posts, setPosts] = useState<ResponseStr[]>([]);
+  const [posts, setPosts] = useRecoilState<ResponseStr[]>(recentSectionPosts);
   const { addToast } = useToast();
   const theme: string = localStorage.getItem("theme") || "";
   const [others, setOthers] = useState<boolean>(false);
+  
 
   useEffect(() => {
     setCurrtab("Recent");
     setSelectedOption("");
     fetchRecentPosts();
-  }, []);
+  }, [setPosts]);
 
   const fetchRecentPosts = async () => {
     try {
@@ -117,36 +118,6 @@ const Others = ({ containerPosts, removeContent }:{
           <Container details={post} removeContent={removeContent} />
         </div>
       ))}
-    </div>
-  );
-};
-const Search = () => {
-  const [searchInput, setSearchInput] = useState<string>("");
-  const clearInputValue = () => {
-    setSearchInput("");
-  };
-  return (
-    <div className="relative inline-block ml-85">
-      <span className="absolute z-15 text-2xl bottom-3 left-2 text-whiteOrange dark:text-blackOrange">
-        <IoSearchOutline />
-      </span>
-      <InputBox
-        variant="auth"
-        placeholder="Search.."
-        type="text"
-        name="search"
-        Icon={true}
-        onChange={(e) => setSearchInput(e.target.value)}
-        value={searchInput}
-      />
-      {searchInput.length > 0 && (
-        <span
-          className="absolute text-2xl  z-15 bottom-3 right-2 text-gray-700 dark:text-white hover:text-red-600 cursor-pointer"
-          onClick={clearInputValue}
-        >
-          <RxCrossCircled />
-        </span>
-      )}
     </div>
   );
 };

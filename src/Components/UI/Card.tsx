@@ -121,7 +121,7 @@ export const Card = ({ preview, details, removeContent,isShare }: CardContainerP
           {showDetails && (
             <motion.div
               key={details._id}
-              className="absolute top-45  w-70  rounded-md bg-white/5 dark:bg-black/30 backdrop-blur-md border border-blackOrange/50  p-2 shadow-lg z-4 font-primary"
+              className={`absolute  ${details.type === "Youtube" ? 'top-5':'top-50'}  w-70  rounded-md bg-white/5 dark:bg-black/30 backdrop-blur-md border border-blackOrange/50  p-2 shadow-lg z-4 font-primary`}
               initial={{ y: -50, opacity: 0, filter: "blur(10px)" }}
               animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
               transition={{ duration: 1, ease: "backOut" }}

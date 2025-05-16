@@ -6,7 +6,6 @@ import { currSidebar } from "../../store/atoms/currSideTab";
 import { callBackend } from "../../store/atoms/backednCallAtom";
 import { Card } from "../UI/Card";
 import { selectOpt } from "../../store/atoms/formAtom";
-import { ShareBrainDataAtom } from "../../store/atoms/shareBrainDataAtom";
 import { YoutubeSharedSelector } from "../../store/selectors/shareBrainSelector";
 
 export interface ResponseStr {
