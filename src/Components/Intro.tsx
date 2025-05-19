@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 export const Intro = () => {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen w-full flex flex-col font-primary justify-center items-center text-black dark:text-white dark:bg-primaryBlack bg-white pb-90">
+    <div className="min-h-screen w-full flex flex-col font-primary justify-center items-center text-black dark:text-white dark:bg-primaryBlack bg-white pb-10">
       <h1 className="text-6xl mb-30 flex flex-row gap-2 mt-10">
         <motion.span
           initial={{ filter: "blur(10px)", scale: 0.8, opacity: 0 }}
