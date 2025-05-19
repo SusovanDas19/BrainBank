@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Menu } from "./Menu";
 import { Tabs } from "./UI/Tabs";
 import ThemeToggle from "./UI/ThemeToggle";
@@ -47,7 +47,7 @@ export const Navbar = ({ closeDropDown }: { closeDropDown: boolean }) => {
       <div
         className="flex items-center gap-4"
         onClick={() => {
-          !token && navigate("/auth");
+          navigate("/");
         }}
       >
         <div className="flex justify-center items-center font-primary cursor-pointer ml-10">
@@ -56,7 +56,7 @@ export const Navbar = ({ closeDropDown }: { closeDropDown: boolean }) => {
             BrainBank
           </span>
         </div>
-        {!closeDropDown && (
+        {!closeDropDown && token && (
           <div className="flex flex-row items-center gap-4 ml-20" ref={menuRef}>
             <Tabs
               variant="navTabs"
