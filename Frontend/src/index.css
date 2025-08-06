@@ -1,0 +1,48 @@
+/* index.css */
+
+* {
+  box-sizing: border-box;
+}
+
+@import "tailwindcss";
+
+/* Define custom theme variables and animations */
+@theme {
+  /* Custom Fonts */
+  --font-primary: "Smooch Sans", serif;
+  --font-Ai: "Noto Sans", serif;
+
+  /* Custom Colors */
+  --color-primaryBlack: #121827;
+  --color-secondaryBlack: #101623;
+  --color-primaryWhite: #ffffff;
+  --color-secondaryWhite: #f5f5f5;
+  --color-blackOrange: #d45604;
+  --color-whiteOrange: #e05e09;
+
+  /* Custom Animation */
+  --animate-blob-bounce: blob-bounce 5s infinite ease;
+
+  @keyframes blob-bounce {
+    0% {
+      transform: translate(-100%, -100%) translate3d(0, 0, 0);
+    }
+    25% {
+      transform: translate(-100%, -100%) translate3d(100%, 0, 0);
+    }
+    50% {
+      transform: translate(-100%, -100%) translate3d(100%, 100%, 0);
+    }
+    75% {
+      transform: translate(-100%, -100%) translate3d(0, 100%, 0);
+    }
+    100% {
+      transform: translate(-100%, -100%) translate3d(0, 0, 0);
+    }
+  }
+}
+
+/* Optional: Define dark mode styles */
+@variant dark (&:where([data-theme="dark"] *)) {
+  /* Add dark mode specific styles here */
+}

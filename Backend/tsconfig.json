@@ -1,0 +1,16 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",         // Target modern Node.js versions
+    "module": "NodeNext",        // Use modern module system
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",          // Crucial: Compile JS files to this folder
+    "rootDir": "./src",          // Your TS source files are here
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],       // Only include the src directory
+  "exclude": ["node_modules"]
+}
